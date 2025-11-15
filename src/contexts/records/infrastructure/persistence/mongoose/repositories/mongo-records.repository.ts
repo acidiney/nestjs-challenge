@@ -2,8 +2,8 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { CreateRecordInput } from '@/contexts/records/application/dtos/create-record.input';
-import { UpdateRecordInput } from '@/contexts/records/application/dtos/update-record.input';
+import { CreateRecordInput } from '@/contexts/records/application/inputs/create-record.input';
+import { UpdateRecordInput } from '@/contexts/records/application/inputs/update-record.input';
 import { RecordsRepository } from '../../../../domain/repositories/records.repository';
 import { Record } from '../schemas/record.schema';
 

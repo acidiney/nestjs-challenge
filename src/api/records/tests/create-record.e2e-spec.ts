@@ -65,6 +65,36 @@ describe('RecordController (e2e)', () => {
     expect(response.body.length).toBe(1);
     expect(response.body[0]).toHaveProperty('artist', 'The Fake Band');
   });
+
+  it('should not create duplicate record entries', async () => {
+    const createRecordDto = {
+      artist: 'The Beatles',
+      album: 'Abbey Road',
+      price: 25,
+      qty: 10,
+      format: RecordFormat.VINYL,
+      category: RecordCategory.ROCK,
+    };
+
+    const firstResponse = await request(app.getHttpServer())
+      .post('/records')
+      .send(createRecordDto)
+      .expect(201);
+
+    recordId = firstResponse.body._id;
+
+    await request(app.getHttpServer())
+      .post('/records')
+      .send(createRecordDto)
+      .expect(409);
+
+    const listResponse = await request(app.getHttpServer())
+      .get('/records?artist=The Beatles&album=Abbey Road&format=Vinyl')
+      .expect(200);
+
+    expect(Array.isArray(listResponse.body)).toBe(true);
+    expect(listResponse.body.length).toBe(1);
+  });
   afterEach(async () => {
     if (recordId) {
       await recordModel.findByIdAndDelete(recordId);

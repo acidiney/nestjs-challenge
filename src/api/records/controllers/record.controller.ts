@@ -5,8 +5,8 @@ import { CreateRecordRequestDTO } from '../dtos/create-record.request.dto';
 import { UpdateRecordRequestDTO } from '../dtos/update-record.request.dto';
 
 import { CreateRecordUseCase } from '@/contexts/records/application/create-record.usecase';
-import { CreateRecordInput } from '@/contexts/records/application/dtos/create-record.input';
-import { UpdateRecordInput } from '@/contexts/records/application/dtos/update-record.input';
+import { CreateRecordInput } from '@/contexts/records/application/inputs/create-record.input';
+import { UpdateRecordInput } from '@/contexts/records/application/inputs/update-record.input';
 import { ListRecordsUseCase } from '@/contexts/records/application/list-records.usecase';
 import { RecordOutput } from '@/contexts/records/application/outputs/record.output';
 import { UpdateRecordUseCase } from '@/contexts/records/application/update-record.usecase';
@@ -27,6 +27,7 @@ export class RecordController {
   @ApiOperation({ summary: 'Create a new record' })
   @ApiResponse({ status: 201, description: 'Record successfully created' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 409, description: 'Record already exists' })
   async create(@Body() request: CreateRecordRequestDTO): Promise<RecordOutput> {
     const input: CreateRecordInput = {
       artist: request.artist,

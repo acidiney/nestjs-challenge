@@ -11,6 +11,21 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
     @InjectModel('Record') private readonly recordModel: Model<Record>,
   ) {}
 
+  private mapToModel(record: Record): RecordModel {
+    return {
+      id: record._id.toString(),
+      artist: record.artist,
+      album: record.album,
+      price: record.price,
+      qty: record.qty,
+      category: record.category,
+      format: record.format,
+      created: record.created,
+      lastModified: record.lastModified,
+      mbid: record.mbid,
+    };
+  }
+
   async findAll(query?: ListRecordsQuery): Promise<RecordModel[]> {
     const filter: any = {};
     const sort: any = {};
@@ -59,17 +74,18 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
       .lean()
       .exec();
 
-    return results.map((record) => ({
-      id: record._id.toString(),
-      artist: record.artist,
-      album: record.album,
-      price: record.price,
-      qty: record.qty,
-      category: record.category,
-      format: record.format,
-      created: record.created,
-      lastModified: record.lastModified,
-      mbid: record.mbid,
-    }));
+    return results.map(this.mapToModel);
+  }
+
+  async findByUnique(
+    artist: string,
+    album: string,
+    format: string,
+  ): Promise<RecordModel | null> {
+    const result = await this.recordModel
+      .findOne({ artist, album, format })
+      .lean()
+      .exec();
+    return result && this.mapToModel(result);
   }
 }

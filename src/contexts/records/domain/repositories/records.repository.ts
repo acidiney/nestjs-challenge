@@ -1,5 +1,5 @@
-import { CreateRecordInput } from '../../application/dtos/create-record.input';
-import { UpdateRecordInput } from '../../application/dtos/update-record.input';
+import { CreateRecordInput } from '../../application/inputs/create-record.input';
+import { UpdateRecordInput } from '../../application/inputs/update-record.input';
 import { RecordModel } from '../models/record.model';
 
 export interface RecordsRepository {

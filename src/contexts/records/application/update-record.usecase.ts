@@ -3,7 +3,7 @@ import {
   RECORDS_REPOSITORY,
   RecordsRepository,
 } from '../domain/repositories/records.repository';
-import { UpdateRecordInput } from './dtos/update-record.input';
+import { UpdateRecordInput } from './inputs/update-record.input';
 import { RecordOutput } from './outputs/record.output';
 
 @Injectable()

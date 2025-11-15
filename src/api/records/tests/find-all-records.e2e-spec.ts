@@ -79,11 +79,97 @@ describe('GET /records (findAll) - e2e', () => {
   });
 
   it('still returns 200 with query params and includes matching records', async () => {
+    const recordA = {
+      artist: 'E2E Artist A',
+      album: 'E2E Album A',
+      price: 15,
+      qty: 5,
+      format: RecordFormat.VINYL,
+      category: RecordCategory.ROCK,
+    };
+    await request(app.getHttpServer())
+      .post('/records')
+      .send(recordA)
+      .expect(201);
     const res = await request(app.getHttpServer())
       .get('/records?artist=E2E%20Artist%20A')
       .expect(200);
     expect(Array.isArray(res.body)).toBe(true);
     const hasA = res.body.some((r: any) => r.artist === 'E2E Artist A');
     expect(hasA).toBe(true);
+  });
+
+  it('sorts by price ascending when sort=price', async () => {
+    const base = {
+      qty: 1,
+      format: RecordFormat.VINYL,
+      category: RecordCategory.INDIE,
+    };
+
+    const a = { artist: 'E2E SortPrice A', album: 'SP A', price: 10, ...base };
+    const b = { artist: 'E2E SortPrice B', album: 'SP B', price: 30, ...base };
+    const c = { artist: 'E2E SortPrice C', album: 'SP C', price: 20, ...base };
+
+    const createA = await request(app.getHttpServer())
+      .post('/records')
+      .send(a)
+      .expect(201);
+    createdIds.push(createA.body._id);
+
+    const createB = await request(app.getHttpServer())
+      .post('/records')
+      .send(b)
+      .expect(201);
+    createdIds.push(createB.body._id);
+
+    const createC = await request(app.getHttpServer())
+      .post('/records')
+      .send(c)
+      .expect(201);
+    createdIds.push(createC.body._id);
+
+    const res = await request(app.getHttpServer())
+      .get('/records?artist=E2E%20SortPrice&sort=price')
+      .expect(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(3);
+    const prices = res.body.map((r: any) => r.price);
+    // Ensure first three are ordered ascending by price for the filtered set
+    expect(prices.slice(0, 3)).toEqual([10, 20, 30]);
+  });
+
+  it('paginates results with page and pageSize along with sort=artist', async () => {
+    const base = {
+      album: 'PC',
+      price: 15,
+      qty: 1,
+      format: RecordFormat.CD,
+      category: RecordCategory.INDIE,
+    };
+
+    const artists = [
+      'E2E PaginateCase A',
+      'E2E PaginateCase B',
+      'E2E PaginateCase C',
+      'E2E PaginateCase D',
+      'E2E PaginateCase E',
+    ];
+
+    for (const artist of artists) {
+      const create = await request(app.getHttpServer())
+        .post('/records')
+        .send({ artist, ...base })
+        .expect(201);
+      createdIds.push(create.body._id);
+    }
+
+    const res = await request(app.getHttpServer())
+      .get('/records?artist=E2E%20PaginateCase&sort=artist&page=2&pageSize=2')
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBe(2);
+    expect(res.body[0].artist).toBe('E2E PaginateCase C');
+    expect(res.body[1].artist).toBe('E2E PaginateCase D');
   });
 });
