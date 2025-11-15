@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { RecordModel } from '../domain/models/record.model';
 import { ListRecordsQuery } from '../domain/queries/list-records.query';
 import {
   RECORDS_READ_REPOSITORY,
@@ -11,7 +10,7 @@ import { RecordOutput } from './outputs/record.output';
 export class ListRecordsUseCase {
   constructor(
     @Inject(RECORDS_READ_REPOSITORY)
-    private readonly readRepo: RecordsReadRepository<RecordModel>,
+    private readonly readRepo: RecordsReadRepository,
   ) {}
 
   async execute(query?: ListRecordsQuery): Promise<RecordOutput[]> {

@@ -4,11 +4,14 @@
     "json",
     "ts"
   ],
-  "rootDir": ".",
+  "rootDir": "../src",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/$1"
   },
   "testPathIgnorePatterns": [
     "/node_modules/"
