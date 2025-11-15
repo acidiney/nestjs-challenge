@@ -1,6 +1,8 @@
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
+import { MBID } from '@/contexts/records/domain/value-objects/mbid.vo';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
@@ -83,5 +85,6 @@ export class UpdateRecordRequestDTO {
     required: false,
   })
   @IsOptional()
-  mbid?: string;
+  @Transform(({ value }) => (value ? MBID.from(value) : undefined))
+  mbid?: MBID;
 }

@@ -1,3 +1,5 @@
+import { MBID } from '../../domain/value-objects/mbid.vo';
+
 export type UpdateRecordInput = {
   artist?: string;
   album?: string;
@@ -5,5 +7,5 @@ export type UpdateRecordInput = {
   qty?: number;
   format?: string;
   category?: string;
-  mbid?: string;
+  mbid?: MBID;
 };

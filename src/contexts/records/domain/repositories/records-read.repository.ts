@@ -8,6 +8,8 @@ export interface RecordsReadRepository {
     album: string,
     format: string,
   ): Promise<RecordModel | null>;
+
+  findById(id: string): Promise<RecordModel | null>;
 }
 
 export const RECORDS_READ_REPOSITORY = Symbol('RECORDS_READ_REPOSITORY');

@@ -66,8 +66,6 @@ export class RecordController {
   @ApiResponse({
     status: 200,
     description: 'List of records',
-    // Note: Returned type is RecordOutput from context
-    // Swagger UI can be updated later to reflect the output class
   })
   @ApiQuery({
     name: 'q',

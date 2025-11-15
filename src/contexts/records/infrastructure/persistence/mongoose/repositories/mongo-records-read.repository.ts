@@ -89,4 +89,10 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
       .exec();
     return result && this.mapToModel(result);
   }
+
+  async findById(id: string): Promise<RecordModel | null> {
+    const result = await this.recordModel.findById(id).lean().exec();
+
+    return result && this.mapToModel(result);
+  }
 }

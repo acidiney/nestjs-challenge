@@ -1,3 +1,5 @@
+import { MBID } from '../../domain/value-objects/mbid.vo';
+
 export type CreateRecordInput = {
   artist: string;
   album: string;
@@ -5,6 +7,6 @@ export type CreateRecordInput = {
   qty: number;
   format: string;
   category: string;
-  mbid?: string;
+  mbid?: MBID;
   tracklist?: string[];
 };

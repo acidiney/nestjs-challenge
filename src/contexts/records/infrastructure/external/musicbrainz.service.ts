@@ -1,6 +1,7 @@
 import { MusicMetadataService } from '@/contexts/records/application/services/music-metadata.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { XMLParser } from 'fast-xml-parser';
+import { MBID } from '../../domain/value-objects/mbid.vo';
 
 @Injectable()
 export class MusicBrainzService implements MusicMetadataService {
@@ -11,8 +12,8 @@ export class MusicBrainzService implements MusicMetadataService {
 
   private readonly logger = new Logger(MusicBrainzService.name);
 
-  async fetchTracklistByMbid(mbid: string): Promise<string[]> {
-    const url = this.buildReleaseUrl(mbid);
+  async fetchTracklistByMbid(mbid: MBID): Promise<string[]> {
+    const url = this.buildReleaseUrl(mbid.toString());
     try {
       const xml = await this.fetchXml(url);
       return this.parseXmlAndExtractTitles(xml);

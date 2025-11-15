@@ -20,21 +20,20 @@ export class MongoRecordsRepository implements RecordsRepository {
       qty: dto.qty,
       format: dto.format,
       category: dto.category,
-      mbid: dto.mbid,
+      mbid: dto.mbid?.toString(),
       tracklist: dto.tracklist ?? [],
     });
   }
 
-  async updateById(id: string, dto: UpdateRecordInput): Promise<Record> {
-    const record = await this.recordModel.findById(id);
-    if (!record) {
-      throw new InternalServerErrorException('Record not found');
-    }
-    Object.assign(record, dto);
-    const updated = await this.recordModel.updateOne(record);
+  async updateById(id: string, dto: UpdateRecordInput): Promise<void> {
+    const updated = await this.recordModel.updateOne({
+      ...dto,
+      id,
+      mbid: dto.mbid?.toString(),
+    });
+
     if (!updated) {
       throw new InternalServerErrorException('Failed to update record');
     }
-    return record as any;
   }
 }

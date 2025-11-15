@@ -4,7 +4,7 @@ import { RecordModel } from '../models/record.model';
 
 export interface RecordsRepository {
   create(dto: CreateRecordInput): Promise<RecordModel>;
-  updateById(id: string, dto: UpdateRecordInput): Promise<RecordModel>;
+  updateById(id: string, dto: UpdateRecordInput): Promise<void>;
 }
 
 export const RECORDS_REPOSITORY = Symbol('RECORDS_REPOSITORY');

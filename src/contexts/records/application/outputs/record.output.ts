@@ -23,7 +23,7 @@ export class RecordOutput {
     this.category = props.category;
     this.created = props.created;
     this.lastModified = props.lastModified;
-    this.mbid = props.mbid;
+    this.mbid = props.mbid?.toString();
     this.tracklist = props.tracklist ?? [];
   }
 

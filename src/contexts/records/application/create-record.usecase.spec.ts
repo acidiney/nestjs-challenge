@@ -1,5 +1,6 @@
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { RecordModel } from '../domain/models/record.model';
+import { MBID } from '../domain/value-objects/mbid.vo';
 import { CreateRecordUseCase } from './create-record.usecase';
 import { CreateRecordInput } from './inputs/create-record.input';
 
@@ -11,7 +12,7 @@ describe('CreateRecordUseCase', () => {
     qty: 10,
     format: 'Vinyl',
     category: 'Rock',
-    mbid: 'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d',
+    mbid: MBID.from('b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d'),
   });
 
   const makeCreatedModel = (): RecordModel => ({
@@ -109,22 +110,5 @@ describe('CreateRecordUseCase', () => {
       tracklist: ['T1', 'T2'],
     });
     expect(output.tracklist).toEqual(['T1', 'T2']);
-  });
-
-  it('returns 400 when mbid is invalid format', async () => {
-    const repo = { create: jest.fn() };
-    const readRepo = { findByUnique: jest.fn().mockResolvedValue(null) };
-    const metadata = { fetchTracklistByMbid: jest.fn() };
-    const usecase = new CreateRecordUseCase(
-      repo as any,
-      readRepo as any,
-      metadata as any,
-    );
-    const input = { ...makeInput(), mbid: 'not-a-uuid' };
-
-    await expect(usecase.execute(input)).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(repo.create).not.toHaveBeenCalled();
   });
 });

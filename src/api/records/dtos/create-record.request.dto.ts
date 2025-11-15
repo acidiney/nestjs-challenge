@@ -1,6 +1,7 @@
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
@@ -8,10 +9,10 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   Max,
   Min,
 } from 'class-validator';
+import { MBID } from './../../../contexts/records/domain/value-objects/mbid.vo';
 
 export class CreateRecordRequestDTO {
   @ApiProperty({
@@ -76,6 +77,6 @@ export class CreateRecordRequestDTO {
     example: 'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d',
   })
   @IsOptional()
-  @IsUUID(4, { message: 'Invalid MBID format' })
-  mbid?: string;
+  @Transform(({ value }) => (value ? MBID.from(value) : undefined))
+  mbid?: MBID;
 }

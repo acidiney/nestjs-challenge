@@ -17,17 +17,25 @@ describe('UpdateRecordUseCase', () => {
   });
 
   it('updates a record by id and maps the output', async () => {
-    const repo = {
-      updateById: jest.fn().mockResolvedValue({ ...makeModel(), price: 30 }),
-    };
+    const repo = { updateById: jest.fn().mockResolvedValue(undefined) };
+    const readRepo = { findById: jest.fn().mockResolvedValue(makeModel()) };
+    const metadata = { fetchTracklistByMbid: jest.fn() };
 
-    const usecase = new UpdateRecordUseCase(repo as any);
+    const usecase = new UpdateRecordUseCase(
+      repo as any,
+      readRepo as any,
+      metadata as any,
+    );
     const id = 'rec_123';
     const dto: UpdateRecordInput = { price: 30 };
 
     const output = await usecase.execute(id, dto);
 
-    expect(repo.updateById).toHaveBeenCalledWith(id, dto);
+    expect(readRepo.findById).toHaveBeenCalledWith(id);
+    expect(repo.updateById).toHaveBeenCalledWith(
+      id,
+      expect.objectContaining({ price: 30 }),
+    );
     expect(output).toMatchObject({
       id: 'rec_123',
       artist: 'The Beatles',
@@ -43,12 +51,22 @@ describe('UpdateRecordUseCase', () => {
     const repo = {
       updateById: jest.fn().mockRejectedValue(new Error('Record not found')),
     };
+    const readRepo = { findById: jest.fn().mockResolvedValue(makeModel()) };
+    const metadata = { fetchTracklistByMbid: jest.fn() };
 
-    const usecase = new UpdateRecordUseCase(repo as any);
+    const usecase = new UpdateRecordUseCase(
+      repo as any,
+      readRepo as any,
+      metadata as any,
+    );
     const id = 'rec_404';
     const dto: UpdateRecordInput = { price: 30 };
 
     await expect(usecase.execute(id, dto)).rejects.toThrow('Record not found');
-    expect(repo.updateById).toHaveBeenCalledWith(id, dto);
+    expect(readRepo.findById).toHaveBeenCalledWith(id);
+    expect(repo.updateById).toHaveBeenCalledWith(
+      id,
+      expect.objectContaining({ price: 30 }),
+    );
   });
 });
