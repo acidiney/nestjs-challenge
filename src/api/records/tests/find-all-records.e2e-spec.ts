@@ -79,6 +79,18 @@ describe('GET /records (findAll) - e2e', () => {
   });
 
   it('still returns 200 with query params and includes matching records', async () => {
+    const recordA = {
+      artist: 'E2E Artist A',
+      album: 'E2E Album A',
+      price: 15,
+      qty: 5,
+      format: RecordFormat.VINYL,
+      category: RecordCategory.ROCK,
+    };
+    await request(app.getHttpServer())
+      .post('/records')
+      .send(recordA)
+      .expect(201);
     const res = await request(app.getHttpServer())
       .get('/records?artist=E2E%20Artist%20A')
       .expect(200);
