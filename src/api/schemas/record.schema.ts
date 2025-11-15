@@ -32,7 +32,7 @@ export class Record extends Document {
   mbid?: string;
 }
 
-export type RecordDocument = Record;
+export type RecordDocument = Record & Document;
 
 export const RecordSchema = SchemaFactory.createForClass(Record);
 

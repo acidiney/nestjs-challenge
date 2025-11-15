@@ -1,16 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { FilterQuery, Model } from 'mongoose';
+import { CreateRecordUseCase } from '../../contexts/records/application/create-record.usecase';
+import { ListRecordsUseCase } from '../../contexts/records/application/list-records.usecase';
+import { UpdateRecordUseCase } from '../../contexts/records/application/update-record.usecase';
+import { ListRecordsQuery } from '../../contexts/records/domain/queries/list-records.query';
+import { RecordSortParam } from '../../contexts/records/domain/queries/sort.types';
 import { CreateRecordRequestDTO } from '../dtos/create-record.request.dto';
 import { UpdateRecordRequestDTO } from '../dtos/update-record.request.dto';
 import { RecordCategory, RecordFormat } from '../schemas/record.enum';
@@ -19,7 +13,9 @@ import { Record } from '../schemas/record.schema';
 @Controller('records')
 export class RecordController {
   constructor(
-    @InjectModel('Record') private readonly recordModel: Model<Record>,
+    private readonly createRecord: CreateRecordUseCase,
+    private readonly updateRecord: UpdateRecordUseCase,
+    private readonly listRecords: ListRecordsUseCase,
   ) {}
 
   @Post()
@@ -27,15 +23,7 @@ export class RecordController {
   @ApiResponse({ status: 201, description: 'Record successfully created' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   async create(@Body() request: CreateRecordRequestDTO): Promise<Record> {
-    return await this.recordModel.create({
-      artist: request.artist,
-      album: request.album,
-      price: request.price,
-      qty: request.qty,
-      format: request.format,
-      category: request.category,
-      mbid: request.mbid,
-    });
+    return this.createRecord.execute(request);
   }
 
   @Put(':id')
@@ -46,19 +34,7 @@ export class RecordController {
     @Param('id') id: string,
     @Body() updateRecordDto: UpdateRecordRequestDTO,
   ): Promise<Record> {
-    const record = await this.recordModel.findById(id);
-    if (!record) {
-      throw new InternalServerErrorException('Record not found');
-    }
-
-    Object.assign(record, updateRecordDto);
-
-    const updated = await this.recordModel.updateOne(record);
-    if (!updated) {
-      throw new InternalServerErrorException('Failed to update record');
-    }
-
-    return record;
+    return this.updateRecord.execute(id, updateRecordDto);
   }
 
   @Get()
@@ -127,49 +103,22 @@ export class RecordController {
     @Query('category') category?: RecordCategory,
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 20,
-    @Query('sort') sort: 'relevance' | 'price' | 'created' = 'relevance',
+    @Query('sort') sort: RecordSortParam = 'relevance',
   ): Promise<Record[]> {
-    const query: FilterQuery<Record> = {};
+    const terms: string[] = [];
+    if (q) terms.push(q);
+    if (artist) terms.push(artist);
+    if (album) terms.push(album);
 
-    if (artist) query.artist = new RegExp(artist, 'i');
-    if (album) query.album = new RegExp(album, 'i');
-    if (format) query.format = format;
-    if (category) query.category = category;
-    if (q) query.$text = { $search: q } as any;
+    const request: ListRecordsQuery = {
+      search: terms.length ? terms.join(' ') : undefined,
+      category,
+      format,
+      sort,
+      page,
+      pageSize,
+    };
 
-    const projection = q
-      ? {
-          score: { $meta: 'textScore' },
-          artist: 1,
-          album: 1,
-          price: 1,
-          qty: 1,
-          format: 1,
-          category: 1,
-        }
-      : {
-          artist: 1,
-          album: 1,
-          price: 1,
-          qty: 1,
-          format: 1,
-          category: 1,
-        };
-
-    let cursor = this.recordModel.find(query, projection).lean();
-    if (sort === 'relevance' && q) {
-      cursor = cursor.sort({ score: { $meta: 'textScore' } });
-    } else if (sort === 'price') {
-      cursor = cursor.sort({ price: 1 });
-    } else if (sort === 'created') {
-      cursor = cursor.sort({ created: -1 });
-    }
-
-    const results = await cursor
-      .skip((Number(page) - 1) * Number(pageSize))
-      .limit(Number(pageSize))
-      .exec();
-
-    return results as any;
+    return this.listRecords.execute(request);
   }
 }
