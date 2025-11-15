@@ -27,6 +27,7 @@ export class RecordController {
   @ApiOperation({ summary: 'Create a new record' })
   @ApiResponse({ status: 201, description: 'Record successfully created' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 409, description: 'Record already exists' })
   async create(@Body() request: CreateRecordRequestDTO): Promise<RecordOutput> {
     const input: CreateRecordInput = {
       artist: request.artist,
