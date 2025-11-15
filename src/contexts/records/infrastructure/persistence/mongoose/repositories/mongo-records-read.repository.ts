@@ -1,6 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { RecordModel } from '@/contexts/records/domain/models/record.model';
 import { ListRecordsQuery } from '../../../../domain/queries/list-records.query';
 import { RecordsReadRepository } from '../../../../domain/repositories/records-read.repository';
 import { Record } from '../schemas/record.schema';
@@ -10,7 +11,7 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
     @InjectModel('Record') private readonly recordModel: Model<Record>,
   ) {}
 
-  async findAll(query?: ListRecordsQuery): Promise<Record[]> {
+  async findAll(query?: ListRecordsQuery): Promise<RecordModel[]> {
     const filter: any = {};
     const sort: any = {};
 
@@ -58,6 +59,17 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
       .lean()
       .exec();
 
-    return results as any;
+    return results.map((record) => ({
+      id: record._id.toString(),
+      artist: record.artist,
+      album: record.album,
+      price: record.price,
+      qty: record.qty,
+      category: record.category,
+      format: record.format,
+      created: record.created,
+      lastModified: record.lastModified,
+      mbid: record.mbid,
+    }));
   }
 }
