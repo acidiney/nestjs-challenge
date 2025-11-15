@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 
 import { AppModule } from '@/app.module';
+import { MUSIC_METADATA_SERVICE } from '@/contexts/records/application/services/music-metadata.service';
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
 
@@ -94,6 +95,59 @@ describe('RecordController (e2e)', () => {
 
     expect(Array.isArray(listResponse.body)).toBe(true);
     expect(listResponse.body.length).toBe(1);
+  });
+
+  describe('Create with MBID (metadata integration)', () => {
+    beforeEach(async () => {
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [AppModule],
+      })
+        .overrideProvider(MUSIC_METADATA_SERVICE)
+        .useValue({ fetchTracklistByMbid: async () => ['Track 1', 'Track 2'] })
+        .compile();
+
+      app = moduleFixture.createNestApplication();
+      recordModel = app.get('RecordModel');
+      await app.init();
+    });
+
+    it('populates tracklist when valid mbid is provided', async () => {
+      const createRecordDto = {
+        artist: 'MBID Artist',
+        album: 'MBID Album',
+        price: 30,
+        qty: 5,
+        format: RecordFormat.VINYL,
+        category: RecordCategory.ROCK,
+        mbid: 'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d',
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/records')
+        .send(createRecordDto)
+        .expect(201);
+
+      recordId = res.body._id;
+      expect(Array.isArray(res.body.tracklist)).toBe(true);
+      expect(res.body.tracklist).toEqual(['Track 1', 'Track 2']);
+    });
+
+    it('returns 400 for invalid mbid format and does not create', async () => {
+      const createRecordDto = {
+        artist: 'Bad MBID Artist',
+        album: 'Bad MBID Album',
+        price: 10,
+        qty: 1,
+        format: RecordFormat.CD,
+        category: RecordCategory.POP,
+        mbid: 'invalid-mbid-format',
+      } as any;
+
+      await request(app.getHttpServer())
+        .post('/records')
+        .send(createRecordDto)
+        .expect(400);
+    });
   });
   afterEach(async () => {
     if (recordId) {

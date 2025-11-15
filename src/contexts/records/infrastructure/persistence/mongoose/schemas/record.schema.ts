@@ -32,6 +32,9 @@ export class Record extends Document {
 
   @Prop({ required: false })
   mbid?: string;
+
+  @Prop({ type: [String], required: false, default: [] })
+  tracklist?: string[];
 }
 
 export type RecordDocument = Record & Document;

@@ -21,6 +21,7 @@ export class MongoRecordsRepository implements RecordsRepository {
       format: dto.format,
       category: dto.category,
       mbid: dto.mbid,
+      tracklist: dto.tracklist ?? [],
     });
   }
 

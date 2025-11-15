@@ -13,6 +13,8 @@ import { RECORDS_REPOSITORY } from '../../contexts/records/domain/repositories/r
 import { MongoRecordsReadRepository } from '../../contexts/records/infrastructure/persistence/mongoose/repositories/mongo-records-read.repository';
 import { MongoRecordsRepository } from '../../contexts/records/infrastructure/persistence/mongoose/repositories/mongo-records.repository';
 import { RecordController } from './controllers/record.controller';
+import { MUSIC_METADATA_SERVICE } from '@/contexts/records/application/services/music-metadata.service';
+import { MusicBrainzService } from '@/contexts/records/infrastructure/external/musicbrainz.service';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { RecordController } from './controllers/record.controller';
   providers: [
     { provide: RECORDS_READ_REPOSITORY, useClass: MongoRecordsReadRepository },
     { provide: RECORDS_REPOSITORY, useClass: MongoRecordsRepository },
+    { provide: MUSIC_METADATA_SERVICE, useClass: MusicBrainzService },
     CreateRecordUseCase,
     UpdateRecordUseCase,
     ListRecordsUseCase,

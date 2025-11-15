@@ -11,6 +11,7 @@ export class RecordOutput {
   created?: Date;
   lastModified?: Date;
   mbid?: string;
+  tracklist?: string[];
 
   constructor(props: RecordModel) {
     this.id = props.id;
@@ -23,6 +24,7 @@ export class RecordOutput {
     this.created = props.created;
     this.lastModified = props.lastModified;
     this.mbid = props.mbid;
+    this.tracklist = props.tracklist ?? [];
   }
 
   static fromModel(model: RecordModel): RecordOutput {
