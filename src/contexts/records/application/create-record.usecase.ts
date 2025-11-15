@@ -1,4 +1,9 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import {
   RECORDS_READ_REPOSITORY,
   RecordsReadRepository,
@@ -7,8 +12,13 @@ import {
   RECORDS_REPOSITORY,
   RecordsRepository,
 } from '../domain/repositories/records.repository';
+import { MBID } from '../domain/value-objects/mbid.vo';
 import { CreateRecordInput } from './inputs/create-record.input';
 import { RecordOutput } from './outputs/record.output';
+import {
+  MUSIC_METADATA_SERVICE,
+  MusicMetadataService,
+} from './services/music-metadata.service';
 
 @Injectable()
 export class CreateRecordUseCase {
@@ -17,6 +27,8 @@ export class CreateRecordUseCase {
     private readonly repo: RecordsRepository,
     @Inject(RECORDS_READ_REPOSITORY)
     private readonly readRepo: RecordsReadRepository,
+    @Inject(MUSIC_METADATA_SERVICE)
+    private readonly metadata: MusicMetadataService,
   ) {}
 
   async execute(dto: CreateRecordInput): Promise<RecordOutput> {
@@ -30,7 +42,22 @@ export class CreateRecordUseCase {
       throw new ConflictException('Record already exists');
     }
 
-    const created = await this.repo.create(dto);
+    let tracklist: string[] | undefined;
+
+    if (dto.mbid) {
+      const mbid = this.normalizeMbidOrThrow(dto.mbid);
+      tracklist = await this.metadata.fetchTracklistByMbid(mbid);
+    }
+
+    const created = await this.repo.create({ ...dto, tracklist });
     return RecordOutput.fromModel(created);
+  }
+
+  private normalizeMbidOrThrow(input: string): string {
+    try {
+      return MBID.from(input).toString();
+    } catch {
+      throw new BadRequestException('Invalid MBID format');
+    }
   }
 }

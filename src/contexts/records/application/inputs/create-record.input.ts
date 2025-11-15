@@ -6,4 +6,5 @@ export type CreateRecordInput = {
   format: string;
   category: string;
   mbid?: string;
+  tracklist?: string[];
 };

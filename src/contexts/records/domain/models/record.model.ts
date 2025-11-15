@@ -9,4 +9,5 @@ export interface RecordModel {
   created?: Date;
   lastModified?: Date;
   mbid?: string;
+  tracklist?: string[];
 }

@@ -1,4 +1,4 @@
-import { ConflictException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import { RecordModel } from '../domain/models/record.model';
 import { CreateRecordUseCase } from './create-record.usecase';
 import { CreateRecordInput } from './inputs/create-record.input';
@@ -27,12 +27,18 @@ describe('CreateRecordUseCase', () => {
     mbid: 'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d',
   });
 
-  it('creates a record when no duplicate exists', async () => {
+  it('creates a record when no duplicate exists (no mbid)', async () => {
     const repo = { create: jest.fn().mockResolvedValue(makeCreatedModel()) };
     const readRepo = { findByUnique: jest.fn().mockResolvedValue(null) };
+    const metadata = { fetchTracklistByMbid: jest.fn() };
 
-    const usecase = new CreateRecordUseCase(repo as any, readRepo as any);
+    const usecase = new CreateRecordUseCase(
+      repo as any,
+      readRepo as any,
+      metadata as any,
+    );
     const input = makeInput();
+    delete (input as any).mbid;
 
     const output = await usecase.execute(input);
 
@@ -41,7 +47,10 @@ describe('CreateRecordUseCase', () => {
       input.album,
       input.format,
     );
-    expect(repo.create).toHaveBeenCalledWith(input);
+    expect(repo.create).toHaveBeenCalledWith({
+      ...input,
+      tracklist: undefined,
+    });
 
     expect(output).toMatchObject({
       id: 'rec_123',
@@ -60,8 +69,12 @@ describe('CreateRecordUseCase', () => {
     const readRepo = {
       findByUnique: jest.fn().mockResolvedValue(makeCreatedModel()),
     };
-
-    const usecase = new CreateRecordUseCase(repo as any, readRepo as any);
+    const metadata = { fetchTracklistByMbid: jest.fn() };
+    const usecase = new CreateRecordUseCase(
+      repo as any,
+      readRepo as any,
+      metadata as any,
+    );
     const input = makeInput();
 
     await expect(usecase.execute(input)).rejects.toBeInstanceOf(
@@ -71,6 +84,46 @@ describe('CreateRecordUseCase', () => {
       input.artist,
       input.album,
       input.format,
+    );
+    expect(repo.create).not.toHaveBeenCalled();
+  });
+
+  it('fetches tracklist when valid mbid provided', async () => {
+    const created = { ...makeCreatedModel(), tracklist: ['T1', 'T2'] };
+    const repo = { create: jest.fn().mockResolvedValue(created) };
+    const readRepo = { findByUnique: jest.fn().mockResolvedValue(null) };
+    const metadata = {
+      fetchTracklistByMbid: jest.fn().mockResolvedValue(['T1', 'T2']),
+    };
+    const usecase = new CreateRecordUseCase(
+      repo as any,
+      readRepo as any,
+      metadata as any,
+    );
+    const input = makeInput();
+
+    const output = await usecase.execute(input);
+    expect(metadata.fetchTracklistByMbid).toHaveBeenCalledWith(input.mbid);
+    expect(repo.create).toHaveBeenCalledWith({
+      ...input,
+      tracklist: ['T1', 'T2'],
+    });
+    expect(output.tracklist).toEqual(['T1', 'T2']);
+  });
+
+  it('returns 400 when mbid is invalid format', async () => {
+    const repo = { create: jest.fn() };
+    const readRepo = { findByUnique: jest.fn().mockResolvedValue(null) };
+    const metadata = { fetchTracklistByMbid: jest.fn() };
+    const usecase = new CreateRecordUseCase(
+      repo as any,
+      readRepo as any,
+      metadata as any,
+    );
+    const input = { ...makeInput(), mbid: 'not-a-uuid' };
+
+    await expect(usecase.execute(input)).rejects.toBeInstanceOf(
+      BadRequestException,
     );
     expect(repo.create).not.toHaveBeenCalled();
   });
