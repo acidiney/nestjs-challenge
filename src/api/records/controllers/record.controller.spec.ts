@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateRecordUseCase } from '../../contexts/records/application/create-record.usecase';
-import { ListRecordsUseCase } from '../../contexts/records/application/list-records.usecase';
-import { UpdateRecordUseCase } from '../../contexts/records/application/update-record.usecase';
+
+import { CreateRecordUseCase } from '@/contexts/records/application/create-record.usecase';
+import { ListRecordsUseCase } from '@/contexts/records/application/list-records.usecase';
+import { UpdateRecordUseCase } from '@/contexts/records/application/update-record.usecase';
+import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
+import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
 import { CreateRecordRequestDTO } from '../dtos/create-record.request.dto';
-import { RecordCategory, RecordFormat } from '../schemas/record.enum';
 import { RecordController } from './record.controller';
 
 describe('RecordController', () => {

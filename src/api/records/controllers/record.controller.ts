@@ -1,14 +1,19 @@
 import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { CreateRecordUseCase } from '../../contexts/records/application/create-record.usecase';
-import { ListRecordsUseCase } from '../../contexts/records/application/list-records.usecase';
-import { UpdateRecordUseCase } from '../../contexts/records/application/update-record.usecase';
-import { ListRecordsQuery } from '../../contexts/records/domain/queries/list-records.query';
-import { RecordSortParam } from '../../contexts/records/domain/queries/sort.types';
+
 import { CreateRecordRequestDTO } from '../dtos/create-record.request.dto';
 import { UpdateRecordRequestDTO } from '../dtos/update-record.request.dto';
-import { RecordCategory, RecordFormat } from '../schemas/record.enum';
-import { Record } from '../schemas/record.schema';
+
+import { CreateRecordUseCase } from '@/contexts/records/application/create-record.usecase';
+import { CreateRecordInput } from '@/contexts/records/application/dtos/create-record.input';
+import { UpdateRecordInput } from '@/contexts/records/application/dtos/update-record.input';
+import { ListRecordsUseCase } from '@/contexts/records/application/list-records.usecase';
+import { RecordOutput } from '@/contexts/records/application/outputs/record.output';
+import { UpdateRecordUseCase } from '@/contexts/records/application/update-record.usecase';
+import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
+import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
+import { ListRecordsQuery } from '@/contexts/records/domain/queries/list-records.query';
+import { RecordSortParam } from '@/contexts/records/domain/queries/sort.types';
 
 @Controller('records')
 export class RecordController {
@@ -22,8 +27,17 @@ export class RecordController {
   @ApiOperation({ summary: 'Create a new record' })
   @ApiResponse({ status: 201, description: 'Record successfully created' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  async create(@Body() request: CreateRecordRequestDTO): Promise<Record> {
-    return this.createRecord.execute(request);
+  async create(@Body() request: CreateRecordRequestDTO): Promise<RecordOutput> {
+    const input: CreateRecordInput = {
+      artist: request.artist,
+      album: request.album,
+      price: request.price,
+      qty: request.qty,
+      format: request.format,
+      category: request.category,
+      mbid: request.mbid,
+    };
+    return this.createRecord.execute(input);
   }
 
   @Put(':id')
@@ -33,8 +47,17 @@ export class RecordController {
   async update(
     @Param('id') id: string,
     @Body() updateRecordDto: UpdateRecordRequestDTO,
-  ): Promise<Record> {
-    return this.updateRecord.execute(id, updateRecordDto);
+  ): Promise<RecordOutput> {
+    const input: UpdateRecordInput = {
+      artist: updateRecordDto.artist,
+      album: updateRecordDto.album,
+      price: updateRecordDto.price,
+      qty: updateRecordDto.qty,
+      format: updateRecordDto.format,
+      category: updateRecordDto.category,
+      mbid: updateRecordDto.mbid,
+    };
+    return this.updateRecord.execute(id, input);
   }
 
   @Get()
@@ -42,7 +65,8 @@ export class RecordController {
   @ApiResponse({
     status: 200,
     description: 'List of records',
-    type: [Record],
+    // Note: Returned type is RecordOutput from context
+    // Swagger UI can be updated later to reflect the output class
   })
   @ApiQuery({
     name: 'q',
@@ -104,7 +128,7 @@ export class RecordController {
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 20,
     @Query('sort') sort: RecordSortParam = 'relevance',
-  ): Promise<Record[]> {
+  ): Promise<RecordOutput[]> {
     const terms: string[] = [];
     if (q) terms.push(q);
     if (artist) terms.push(artist);

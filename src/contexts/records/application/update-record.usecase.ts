@@ -1,23 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { UpdateRecordRequestDTO } from '../../../api/dtos/update-record.request.dto';
-import { Record } from '../../../api/schemas/record.schema';
 import {
   RECORDS_REPOSITORY,
   RecordsRepository,
-} from '../../records/domain/repositories/records.repository';
+} from '../domain/repositories/records.repository';
+import { UpdateRecordInput } from './dtos/update-record.input';
+import { RecordOutput } from './outputs/record.output';
 
 @Injectable()
 export class UpdateRecordUseCase {
   constructor(
     @Inject(RECORDS_REPOSITORY)
-    private readonly repo: RecordsRepository<
-      Record,
-      any,
-      UpdateRecordRequestDTO
-    >,
+    private readonly repo: RecordsRepository,
   ) {}
 
-  async execute(id: string, dto: UpdateRecordRequestDTO): Promise<Record> {
-    return this.repo.updateById(id, dto);
+  async execute(id: string, dto: UpdateRecordInput): Promise<RecordOutput> {
+    const updated = await this.repo.updateById(id, dto);
+    return RecordOutput.fromModel(updated);
   }
 }

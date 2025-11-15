@@ -1,8 +1,11 @@
-import * as mongoose from 'mongoose';
-import { Record, RecordSchema } from './src/api/schemas/record.schema';
 import * as fs from 'fs';
-import { AppConfig } from './src/app.config';
+import * as mongoose from 'mongoose';
 import * as readline from 'readline';
+import { AppConfig } from './src/app.config';
+import {
+  Record,
+  RecordSchema,
+} from './src/contexts/records/infrastructure/persistence/mongoose/schemas/record.schema';
 
 async function setupDatabase() {
   try {

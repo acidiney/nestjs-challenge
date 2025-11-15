@@ -1,14 +1,15 @@
-import {
-  IsString,
-  IsNumber,
-  Min,
-  Max,
-  IsInt,
-  IsEnum,
-  IsOptional,
-} from 'class-validator';
+import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
+import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { RecordFormat, RecordCategory } from '../schemas/record.enum';
+import {
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class UpdateRecordRequestDTO {
   @ApiProperty({

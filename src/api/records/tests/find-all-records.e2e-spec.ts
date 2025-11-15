@@ -3,9 +3,12 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import * as request from 'supertest';
-import { RecordCategory, RecordFormat } from '../src/api/schemas/record.enum';
-import { Record } from '../src/api/schemas/record.schema';
-import { AppModule } from '../src/app.module';
+
+import { AppModule } from '@/app.module';
+
+import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
+import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
+import { Record } from '@/contexts/records/infrastructure/persistence/mongoose/schemas/record.schema';
 
 describe('GET /records (findAll) - e2e', () => {
   let app: INestApplication;

@@ -1,20 +1,18 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateRecordRequestDTO } from '../../../../../api/dtos/create-record.request.dto';
-import { UpdateRecordRequestDTO } from '../../../../../api/dtos/update-record.request.dto';
-import { Record } from '../../../../../api/schemas/record.schema';
-import { RecordsRepository } from '../../../domain/repositories/records.repository';
 
-export class MongoRecordsRepository
-  implements
-    RecordsRepository<Record, CreateRecordRequestDTO, UpdateRecordRequestDTO>
-{
+import { CreateRecordInput } from '@/contexts/records/application/dtos/create-record.input';
+import { UpdateRecordInput } from '@/contexts/records/application/dtos/update-record.input';
+import { RecordsRepository } from '../../../../domain/repositories/records.repository';
+import { Record } from '../schemas/record.schema';
+
+export class MongoRecordsRepository implements RecordsRepository {
   constructor(
     @InjectModel('Record') private readonly recordModel: Model<Record>,
   ) {}
 
-  async create(dto: CreateRecordRequestDTO): Promise<Record> {
+  async create(dto: CreateRecordInput): Promise<Record> {
     return this.recordModel.create({
       artist: dto.artist,
       album: dto.album,
@@ -26,7 +24,7 @@ export class MongoRecordsRepository
     });
   }
 
-  async updateById(id: string, dto: UpdateRecordRequestDTO): Promise<Record> {
+  async updateById(id: string, dto: UpdateRecordInput): Promise<Record> {
     const record = await this.recordModel.findById(id);
     if (!record) {
       throw new InternalServerErrorException('Record not found');

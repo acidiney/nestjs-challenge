@@ -1,12 +1,11 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Record } from '../../../../../api/schemas/record.schema';
-import { ListRecordsQuery } from '../../../domain/queries/list-records.query';
-import { RecordsReadRepository } from '../../../domain/repositories/records-read.repository';
 
-export class MongoRecordsReadRepository
-  implements RecordsReadRepository<Record>
-{
+import { ListRecordsQuery } from '../../../../domain/queries/list-records.query';
+import { RecordsReadRepository } from '../../../../domain/repositories/records-read.repository';
+import { Record } from '../schemas/record.schema';
+
+export class MongoRecordsReadRepository implements RecordsReadRepository {
   constructor(
     @InjectModel('Record') private readonly recordModel: Model<Record>,
   ) {}
