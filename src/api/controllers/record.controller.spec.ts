@@ -1,35 +1,32 @@
-import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
+import { CreateRecordUseCase } from '../../contexts/records/application/create-record.usecase';
+import { ListRecordsUseCase } from '../../contexts/records/application/list-records.usecase';
+import { UpdateRecordUseCase } from '../../contexts/records/application/update-record.usecase';
 import { CreateRecordRequestDTO } from '../dtos/create-record.request.dto';
 import { RecordCategory, RecordFormat } from '../schemas/record.enum';
-import { Record } from '../schemas/record.schema';
 import { RecordController } from './record.controller';
 
 describe('RecordController', () => {
   let recordController: RecordController;
-  let recordModel: Model<Record>;
+  let createRecord: { execute: jest.Mock };
+  let updateRecord: { execute: jest.Mock };
+  let listRecords: { execute: jest.Mock };
 
   beforeEach(async () => {
+    createRecord = { execute: jest.fn() };
+    updateRecord = { execute: jest.fn() };
+    listRecords = { execute: jest.fn() };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RecordController],
       providers: [
-        {
-          provide: getModelToken('Record'),
-          useValue: {
-            new: jest.fn().mockResolvedValue({}),
-            constructor: jest.fn().mockResolvedValue({}),
-            find: jest.fn(),
-            findById: jest.fn(),
-            save: jest.fn(),
-            create: jest.fn(),
-          },
-        },
+        { provide: CreateRecordUseCase, useValue: createRecord },
+        { provide: UpdateRecordUseCase, useValue: updateRecord },
+        { provide: ListRecordsUseCase, useValue: listRecords },
       ],
     }).compile();
 
     recordController = module.get<RecordController>(RecordController);
-    recordModel = module.get<Model<Record>>(getModelToken('Record'));
   });
 
   it('should create a new record', async () => {
@@ -47,13 +44,12 @@ describe('RecordController', () => {
       name: 'Test Record',
       price: 100,
       qty: 10,
-    };
-
-    jest.spyOn(recordModel, 'create').mockResolvedValue(savedRecord as any);
+    } as any;
+    createRecord.execute.mockResolvedValue(savedRecord);
 
     const result = await recordController.create(createRecordDto);
     expect(result).toEqual(savedRecord);
-    expect(recordModel.create).toHaveBeenCalledWith({
+    expect(createRecord.execute).toHaveBeenCalledWith({
       artist: 'Test',
       album: 'Test Record',
       price: 100,
@@ -68,13 +64,12 @@ describe('RecordController', () => {
       { _id: '1', name: 'Record 1', price: 100, qty: 10 },
       { _id: '2', name: 'Record 2', price: 200, qty: 20 },
     ];
-
-    jest.spyOn(recordModel, 'find').mockReturnValue({
-      exec: jest.fn().mockResolvedValue(records),
-    } as any);
+    listRecords.execute.mockResolvedValue(records as any);
 
     const result = await recordController.findAll();
     expect(result).toEqual(records);
-    expect(recordModel.find).toHaveBeenCalled();
+    expect(listRecords.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ page: 1, pageSize: 20, sort: 'relevance' }),
+    );
   });
 });
