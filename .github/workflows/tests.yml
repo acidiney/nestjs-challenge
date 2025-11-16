@@ -1,0 +1,71 @@
+name: CI Tests and Coverage
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand(\"ping\").ok' localhost:27017/test --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      valkey:
+        image: valkey/valkey:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      CI: true
+      NODE_ENV: test
+      MONGO_URL: mongodb://localhost:27017/records
+      VALKEY_URL: redis://localhost:6379
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Wait for services
+        run: |
+          for i in {1..30}; do
+            (nc -z localhost 27017 && nc -z localhost 6379) && echo "Services ready" && exit 0
+            echo "Waiting for MongoDB and Valkey..." && sleep 2
+          done
+          echo "Services did not become ready in time" && exit 1
+
+      - name: Run unit tests with coverage
+        run: npm test -- --coverage --coverageDirectory=coverage/unit
+
+      - name: Run e2e tests with coverage
+        run: npm run test:e2e -- --coverage --coverageDirectory=coverage/e2e
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            coverage/unit
+            coverage/e2e
