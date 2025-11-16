@@ -200,7 +200,7 @@
                 <template x-for="r in orderRecordOptions" :key="r.id">
                   <div class="px-3 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between" @click="selectOrderRecord(r)">
                     <span x-text="r.artist + ' - ' + r.album"></span>
-                    <span class="text-xs text-gray-400" x-text="r.format"></span>
+                    <span class="text-xs text-gray-400" x-text="(r.format || '') + ' • ' + (r.qty ?? 0) + ' available'"></span>
                   </div>
                 </template>
                 <div class="px-3 py-2 text-sm text-gray-400" x-show="orderRecordLoading">Loading...</div>
@@ -215,9 +215,10 @@
             <div x-show="orderRecordSelected" class="mb-4">
               <div class="font-medium" x-text="orderRecordSelected ? (orderRecordSelected.artist + ' - ' + orderRecordSelected.album) : ''"></div>
               <div class="text-xs text-gray-400" x-text="orderRecordSelected ? (orderRecordSelected.format + (orderRecordSelected.price ? (' • $' + orderRecordSelected.price) : '')) : ''"></div>
+              <div class="text-xs text-gray-400" x-show="orderRecordSelected" x-text="'Available: ' + (orderRecordSelected ? (orderRecordSelected.qty ?? 0) : 0)"></div>
             </div>
             <label class="block text-sm font-medium">Quantity
-              <input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="order.quantity" min="1">
+              <input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="order.quantity" min="1" :max="orderRecordSelected ? orderRecordSelected.qty : null" @input="onOrderQuantityInput">
             </label>
             <div class="flex items-center justify-end gap-3 mt-4">
               <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!order.recordId || !order.quantity" @click="createOrder">Create Order</button>
@@ -424,6 +425,7 @@
         onOrderRecordScroll(e){ const el = e.target; if(el.scrollTop + el.clientHeight >= el.scrollHeight - 32){ this.loadOrderRecords(); } },
         selectOrderRecord(r){ this.order.recordId = r.id; this.orderRecordSelected = r; this.orderRecordOpen = false; },
         onOrderRecordSearchInput(){ if(this.orderRecordSearchTimer){ clearTimeout(this.orderRecordSearchTimer); } this.orderRecordSearchTimer = setTimeout(() => { this.orderRecordOptions = []; this.orderRecordPage = 1; this.orderRecordTotalPages = 1; this.loadOrderRecords(); }, 200); },
+        onOrderQuantityInput(){ const max = this.orderRecordSelected ? Number(this.orderRecordSelected.qty||0) : Infinity; const q = Number(this.order.quantity||0); this.order.quantity = Math.max(1, Math.min(q, isFinite(max) ? max : q)); },
         selectRecord(r){
           const id = r.id ;
           this.er = { id, artist: r.artist||'', album: r.album||'', price: r.price||'', qty: r.qty||'', format: r.format||'Vinyl', category: r.category||'Rock', mbid: r.mbid||'' };
