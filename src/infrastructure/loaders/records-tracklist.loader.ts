@@ -40,28 +40,38 @@ export class RecordsTracklistLoader implements OnModuleInit {
         return;
       }
 
-      for (const rec of candidates) {
-        try {
-          const mbid = MBID.from(String(rec.mbid));
-          const tracklist = await this.metadata.fetchTrackInfosByMbid(mbid);
-          if (Array.isArray(tracklist) && tracklist.length > 0) {
-            await this.recordModel
-              .updateOne({ _id: rec._id }, { $set: { tracklist } })
-              .exec();
-            this.logger.log(
-              `Backfilled tracklist for record=${rec._id} mbid=${rec.mbid} count=${tracklist.length}`,
-            );
-          } else {
-            this.logger.warn(
-              `No tracklist found for mbid=${rec.mbid} record=${rec._id}`,
-            );
-          }
-        } catch (err) {
-          const message = err instanceof Error ? err.message : String(err);
-          this.logger.warn(
-            `Backfill failed for record=${rec._id} mbid=${rec.mbid}: ${message}`,
-          );
-        }
+      const BATCH_SIZE = 10;
+      for (let i = 0; i < candidates.length; i += BATCH_SIZE) {
+        const batch = candidates.slice(i, i + BATCH_SIZE);
+
+        await Promise.all(
+          batch.map(async (rec) => {
+            try {
+              const mbid = MBID.from(String(rec.mbid));
+
+              const tracklist = await this.metadata.fetchTrackInfosByMbid(mbid);
+
+              if (Array.isArray(tracklist) && tracklist.length > 0) {
+                await this.recordModel
+                  .updateOne({ _id: rec._id }, { $set: { tracklist } })
+                  .exec();
+                this.logger.log(
+                  `Backfilled tracklist for record=${rec._id} mbid=${rec.mbid} count=${tracklist.length}`,
+                );
+                return;
+              }
+
+              this.logger.warn(
+                `No tracklist found for mbid=${rec.mbid} record=${rec._id}`,
+              );
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              this.logger.warn(
+                `Backfill failed for record=${rec._id} mbid=${rec.mbid}: ${message}`,
+              );
+            }
+          }),
+        );
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
