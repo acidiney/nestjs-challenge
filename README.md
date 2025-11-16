@@ -74,6 +74,13 @@ To build and run the app in production mode:
 npm run start:prod
 ```
 
+## Deployment
+
+- Admin URL: `https://brokenrecordstore.onrender.com/admin`
+- App Hosting: Render (`512MB RAM`, `0.1 CPU`)
+- Database: MongoDB Atlas (`512 MB storage`, `shared RAM`, `shared vCPU`)
+- Cache: Aiven Valkey (`1 CPU`, `1 GB RAM`)
+
 ### Tests
 #### Run Unit Tests
 To run unit tests:
