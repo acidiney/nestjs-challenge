@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:20px}
+    h1{margin-bottom:8px}
+    section{margin-bottom:24px;padding:16px;border:1px solid #ddd;border-radius:8px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid #eee;padding:8px;text-align:left}
+    label{display:block;margin:6px 0}
+    input,select{padding:6px;width:100%;max-width:320px}
+    button{padding:8px 12px;margin-top:8px}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    .row > div{flex:1 1 320px}
+    .muted{color:#666;font-size:12px}
+    .error{color:#b00020}
+    .success{color:#087f23}
+  </style>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+  <div x-data="admin()" x-init="load()">
+    <h1>Admin Panel</h1>
+    <p class="muted">Manage records and create orders.</p>
+
+    <section>
+      <h2>Create Record</h2>
+      <div class="row">
+        <div>
+          <label>Artist<input type="text" x-model="cr.artist"></label>
+          <label>Album<input type="text" x-model="cr.album"></label>
+          <label>Price<input type="number" x-model.number="cr.price"></label>
+          <label>Quantity<input type="number" x-model.number="cr.qty"></label>
+          <label>Format
+            <select x-model="cr.format">
+              <option>Vinyl</option>
+              <option>CD</option>
+              <option>Cassette</option>
+              <option>Digital</option>
+            </select>
+          </label>
+          <label>Category
+            <select x-model="cr.category">
+              <option>Rock</option>
+              <option>Jazz</option>
+              <option>Hip-Hop</option>
+              <option>Classical</option>
+              <option>Pop</option>
+              <option>Alternative</option>
+              <option>Indie</option>
+            </select>
+          </label>
+          <label>MBID<input type="text" x-model="cr.mbid"></label>
+          <button @click="createRecord">Create</button>
+          <div :class="createStatus.includes('Created') ? 'success' : (createStatus ? 'error' : 'muted')" x-text="createStatus || ''"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Records</h2>
+      <div class="row">
+        <div>
+          <div class="muted" x-text="loading ? 'Loading records...' : 'Loaded ' + records.length"></div>
+          <table>
+            <thead>
+              <tr>
+                <th>Id</th><th>Artist</th><th>Album</th><th>Price</th><th>Qty</th><th>Format</th><th>Category</th><th>MBID</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="r in records" :key="r.id || r._id">
+                <tr>
+                  <td x-text="r.id || r._id"></td>
+                  <td x-text="r.artist"></td>
+                  <td x-text="r.album"></td>
+                  <td x-text="r.price"></td>
+                  <td x-text="r.qty"></td>
+                  <td x-text="r.format"></td>
+                  <td x-text="r.category"></td>
+                  <td x-text="r.mbid"></td>
+                  <td><button @click="selectRecord(r)">Edit</button></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>Edit Record</h3>
+          <label>Id<input type="text" x-model="er.id" disabled></label>
+          <label>Artist<input type="text" x-model="er.artist"></label>
+          <label>Album<input type="text" x-model="er.album"></label>
+          <label>Price<input type="number" x-model.number="er.price"></label>
+          <label>Quantity<input type="number" x-model.number="er.qty"></label>
+          <label>Format
+            <select x-model="er.format">
+              <option>Vinyl</option>
+              <option>CD</option>
+              <option>Cassette</option>
+              <option>Digital</option>
+            </select>
+          </label>
+          <label>Category
+            <select x-model="er.category">
+              <option>Rock</option>
+              <option>Jazz</option>
+              <option>Hip-Hop</option>
+              <option>Classical</option>
+              <option>Pop</option>
+              <option>Alternative</option>
+              <option>Indie</option>
+            </select>
+          </label>
+          <label>MBID<input type="text" x-model="er.mbid"></label>
+          <button :disabled="!er.id" @click="updateRecord">Update</button>
+          <div :class="updateStatus.includes('Updated') ? 'success' : (updateStatus ? 'error' : 'muted')" x-text="updateStatus || ''"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Create Order</h2>
+      <label>Record
+        <select x-model="order.recordId">
+          <template x-for="r in records" :key="r.id || r._id">
+            <option :value="r.id || r._id" x-text="r.artist + ' - ' + r.album"></option>
+          </template>
+        </select>
+      </label>
+      <label>Quantity<input type="number" x-model.number="order.quantity"></label>
+      <button @click="createOrder">Create Order</button>
+      <div :class="orderStatus.includes('Order created') ? 'success' : (orderStatus ? 'error' : 'muted')" x-text="orderStatus || ''"></div>
+    </section>
+  </div>
+
+  <script>
+    function admin(){
+      return {
+        records: [],
+        loading: false,
+        createStatus: '',
+        updateStatus: '',
+        orderStatus: '',
+        cr: { artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' },
+        er: { id: '', artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' },
+        order: { recordId: '', quantity: '' },
+        async load(){
+          try{
+            this.loading = true;
+            const r = await fetch('/records?pageSize=100&sort=created');
+            const json = await r.json();
+            this.records = json.data || [];
+          }finally{
+            this.loading = false;
+          }
+        },
+        selectRecord(r){
+          const id = r.id || r._id;
+          this.er = { id, artist: r.artist||'', album: r.album||'', price: r.price||'', qty: r.qty||'', format: r.format||'Vinyl', category: r.category||'Rock', mbid: r.mbid||'' };
+        },
+        async createRecord(){
+          try{
+            this.createStatus = 'Creating...';
+            const res = await fetch('/records', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artist: this.cr.artist, album: this.cr.album, price: Number(this.cr.price), qty: Number(this.cr.qty), format: this.cr.format, category: this.cr.category, mbid: this.cr.mbid || undefined }) });
+            if(!res.ok){ throw new Error('Failed to create record'); }
+            this.createStatus = 'Created';
+            await this.load();
+          }catch(e){ this.createStatus = e.message; }
+        },
+        async updateRecord(){
+          try{
+            this.updateStatus = 'Updating...';
+            const id = this.er.id;
+            const payload = { artist: this.er.artist || undefined, album: this.er.album || undefined, price: Number(this.er.price), qty: Number(this.er.qty), format: this.er.format || undefined, category: this.er.category || undefined, mbid: this.er.mbid || undefined };
+            const res = await fetch('/records/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if(!res.ok){ throw new Error('Failed to update record'); }
+            this.updateStatus = 'Updated';
+            await this.load();
+          }catch(e){ this.updateStatus = e.message; }
+        },
+        async createOrder(){
+          try{
+            this.orderStatus = 'Creating...';
+            const res = await fetch('/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recordId: this.order.recordId, quantity: Number(this.order.quantity) }) });
+            if(!res.ok){ throw new Error('Failed to create order'); }
+            this.orderStatus = 'Order created';
+          }catch(e){ this.orderStatus = e.message; }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
