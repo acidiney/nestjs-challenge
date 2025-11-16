@@ -322,8 +322,8 @@
       <div class="bg-gray-800 border border-gray-700 text-gray-100 w-full h-full max-w-none rounded-none p-4 sm:h-auto sm:max-w-lg sm:rounded-lg sm:p-6 shadow-xl overflow-y-auto" x-transition.scale @click.stop>
         <h3>Edit Record</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-          <label class="block text-sm font-medium md:col-span-1">Artist<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.artist"></label>
-          <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.album"></label>
+          <label class="block text-sm font-medium md:col-span-1">Artist<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.artist" @input="debouncedLookup('edit')"></label>
+          <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.album" @input="debouncedLookup('edit')"></label>
           <label class="block text-sm font-medium md:col-span-1">Price<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.price"></label>
           <label class="block text-sm font-medium md:col-span-1">Quantity<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.qty"></label>
           <label class="block text-sm font-medium md:col-span-1">Format
@@ -345,13 +345,28 @@
               <option>Indie</option>
             </select>
           </label>
-          <label class="block text-sm font-medium md:col-span-2">MBID<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.mbid"></label>
+          <label class="block text-sm font-medium md:col-span-2">MBID
+            <div class="mt-1 flex gap-2 items-center">
+              <input class="flex-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.mbid">
+              <button type="button" class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100" @click="debouncedLookup('edit')">Find MBID</button>
+              <template x-if="mbidLookupLoadingEdit">
+                <span class="text-gray-400 text-xs">Searching...</span>
+              </template>
+              <template x-if="!mbidLookupLoadingEdit && er.mbid">
+                <span class="text-green-400 inline-flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                </span>
+              </template>
+              <template x-if="!mbidLookupLoadingEdit && !er.mbid && updateStatus==='MBID not found'">
+                <span class="text-red-400 text-xs">MBID not found</span>
+              </template>
+            </div>
+          </label>
         </div>
         <div class="flex items-center justify-end gap-3 mt-6">
           <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded" @click="showEditModal=false">Cancel</button>
           <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" :disabled="!er.id" @click="updateRecord">Update</button>
         </div>
-        <div class="mt-2 text-sm" :class="updateStatus.includes('Updated') ? 'text-green-400' : (updateStatus ? 'text-red-400' : 'text-gray-400')" x-text="updateStatus || ''"></div>
       </div>
     </div>
 
@@ -359,8 +374,8 @@
       <div class="bg-gray-800 border border-gray-700 text-gray-100 w-full h-full max-w-none rounded-none p-4 sm:h-auto sm:max-w-lg sm:rounded-lg sm:p-6 shadow-xl overflow-y-auto" x-transition.scale @click.stop>
         <h3>New Record</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-          <label class="block text-sm font-medium md:col-span-1">Artist<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.artist"></label>
-          <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.album"></label>
+          <label class="block text-sm font-medium md:col-span-1">Artist<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.artist" @input="debouncedLookup('create')"></label>
+          <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.album" @input="debouncedLookup('create')"></label>
           <label class="block text-sm font-medium md:col-span-1">Price<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.price"></label>
           <label class="block text-sm font-medium md:col-span-1">Quantity<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.qty"></label>
           <label class="block text-sm font-medium md:col-span-1">Format
@@ -382,13 +397,28 @@
               <option>Indie</option>
             </select>
           </label>
-          <label class="block text-sm font-medium md:col-span-2">MBID<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.mbid"></label>
+          <label class="block text-sm font-medium md:col-span-2">MBID
+            <div class="mt-1 flex gap-2 items-center">
+              <input class="flex-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.mbid">
+              <button type="button" class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100" @click="debouncedLookup('create')">Find MBID</button>
+              <template x-if="mbidLookupLoadingCreate">
+                <span class="text-gray-400 text-xs">Searching...</span>
+              </template>
+              <template x-if="!mbidLookupLoadingCreate && cr.mbid">
+                <span class="text-green-400 inline-flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                </span>
+              </template>
+              <template x-if="!mbidLookupLoadingCreate && !cr.mbid && createStatus==='MBID not found'">
+                <span class="text-red-400 text-xs">MBID not found</span>
+              </template>
+            </div>
+          </label>
         </div>
         <div class="flex items-center justify-end gap-3 mt-6">
           <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded" @click="showCreateModal=false">Cancel</button>
           <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" @click="createRecord">Create</button>
         </div>
-        <div class="mt-2 text-sm" :class="createStatus.includes('Created') ? 'text-green-400' : (createStatus ? 'text-red-400' : 'text-gray-400')" x-text="createStatus || ''"></div>
       </div>
     </div>
     <div x-cloak x-show="showTrackSlider" @keydown.escape.window="showTrackSlider=false" class="fixed inset-0 z-50">
@@ -420,7 +450,7 @@
 
   <script>
     function admin(){
-      return {
+        return {
         page: (typeof localStorage !== 'undefined' && localStorage.getItem('adminPage')) || 'dashboard',
         showEditModal: false,
         showCreateModal: false,
@@ -457,6 +487,8 @@
         ordersPerPage: 20,
         ordersTotal: 0,
         ordersTotalPages: 1,
+        mbidLookupLoadingCreate: false,
+        mbidLookupLoadingEdit: false,
         orderListLoading: false,
         async load(){
           try{
@@ -586,6 +618,24 @@
             this.order.quantity = '';
             await this.loadOrders();
           }catch(e){ this.orderStatus = e.message; }
+        },
+        lookupMbidTimer: null,
+        debouncedLookup(target){ if(this.lookupMbidTimer){ clearTimeout(this.lookupMbidTimer); } this.lookupMbidTimer = setTimeout(()=> this.lookupMbid(target), 500); },
+        async lookupMbid(target){
+          const isCreate = target === 'create';
+          const artist = (isCreate ? this.cr.artist : this.er.artist || '').trim();
+          const album = (isCreate ? this.cr.album : this.er.album || '').trim();
+          if(!artist || !album) return;
+          try{
+            if(isCreate){ this.mbidLookupLoadingCreate = true; this.createStatus = 'Searching MBID...'; }
+            else { this.mbidLookupLoadingEdit = true; this.updateStatus = 'Searching MBID...'; }
+            const res = await fetch('/records/mbid/search', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ artist, album }) });
+            const json = await res.json();
+            const found = json?.mbid || '';
+            if(isCreate){ this.cr.mbid = found; this.createStatus = found ? '' : 'MBID not found'; }
+            else { this.er.mbid = found; this.updateStatus = found ? '' : 'MBID not found'; }
+          }catch(e){ if(isCreate){ this.createStatus = 'MBID search failed'; } else { this.updateStatus = 'MBID search failed'; } }
+          finally{ if(isCreate){ this.mbidLookupLoadingCreate = false; } else { this.mbidLookupLoadingEdit = false; } }
         }
       }
     }

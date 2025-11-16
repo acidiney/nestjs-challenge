@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Param,
   Post,
   Put,
@@ -20,12 +21,17 @@ import { UpdateRecordInput } from '@/contexts/records/application/inputs/update-
 import { ListRecordsUseCase } from '@/contexts/records/application/list-records.usecase';
 import { RecordOutput } from '@/contexts/records/application/outputs/record.output';
 import { RecordsPageOutput } from '@/contexts/records/application/outputs/records-page.output';
+import {
+  MUSIC_METADATA_SERVICE,
+  MusicMetadataService,
+} from '@/contexts/records/application/services/music-metadata.service';
 import { UpdateRecordUseCase } from '@/contexts/records/application/update-record.usecase';
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
 import { ListRecordsQuery } from '@/contexts/records/domain/queries/list-records.query';
 import { RecordSortParam } from '@/contexts/records/domain/queries/sort.types';
 import { CustomCacheInterceptor } from '@/infrastructure/cache/custom-cache.interceptor';
+import { LookupMbidRequestDTO } from '../dtos/lookup-mbid.request.dto';
 
 @Controller('records')
 export class RecordController {
@@ -33,6 +39,8 @@ export class RecordController {
     private readonly createRecord: CreateRecordUseCase,
     private readonly updateRecord: UpdateRecordUseCase,
     private readonly listRecords: ListRecordsUseCase,
+    @Inject(MUSIC_METADATA_SERVICE)
+    private readonly metadata: MusicMetadataService,
   ) {}
 
   @Post()
@@ -157,5 +165,15 @@ export class RecordController {
     };
 
     return this.listRecords.execute(request);
+  }
+
+  @Post('mbid/search')
+  @ApiOperation({ summary: 'Lookup MBID by artist and album' })
+  @ApiResponse({ status: 200, description: 'MBID found or not' })
+  async searchMbid(
+    @Body() body: LookupMbidRequestDTO,
+  ): Promise<{ mbid: string | null }> {
+    const mbid = await this.metadata.searchReleaseMbid(body.artist, body.album);
+    return { mbid: mbid ? mbid.toString() : null };
   }
 }

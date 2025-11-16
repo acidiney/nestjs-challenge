@@ -36,6 +36,45 @@ export class MusicBrainzService implements MusicMetadataService {
     }
   }
 
+  async searchReleaseMbid(artist: string, album: string): Promise<MBID | null> {
+    const qArtist = artist.trim();
+    const qAlbum = album.trim();
+    if (!qArtist || !qAlbum) return null;
+    const params = new URLSearchParams({
+      query: `artist:"${qArtist}" AND release:"${qAlbum}"`,
+      fmt: this.DEFAULT_FMT,
+    });
+
+    const url = new URL(`release/?${params.toString()}`, this.BASE_URL);
+
+    try {
+      const xml = await this.fetchXml(url);
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: '',
+      });
+
+      const obj = parser.parse(xml);
+      const list = obj?.metadata?.['release-list'];
+      const releasesRaw = list?.release ?? [];
+      const releases = Array.isArray(releasesRaw)
+        ? releasesRaw
+        : releasesRaw
+          ? [releasesRaw]
+          : [];
+      const best: any = releases[0];
+      const id = (best?.id || '').trim();
+      if (!id || !MBID.isValid(id)) return null;
+      return MBID.from(id);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(
+        `MusicBrainz search (XML) failed for artist="${qArtist}" album="${qAlbum}": ${message}`,
+      );
+      return null;
+    }
+  }
+
   private buildReleaseUrl(mbid: string): URL {
     const encoded = encodeURIComponent(mbid);
 
