@@ -48,6 +48,11 @@ export class UpdateRecordUseCase {
       tracklist,
     });
 
+    if (!dto.mbid && record.mbid) {
+      updatedDto.mbid = undefined;
+      updatedDto.tracklist = [];
+    }
+
     await this.repo.updateById(id, updatedDto);
     this.events.emit('cache.invalidate', 'record:list');
     return RecordOutput.fromModel(await this.recordReadRepository.findById(id));
