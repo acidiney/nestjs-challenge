@@ -56,4 +56,77 @@ describe('MusicBrainzService', () => {
     expect(Array.isArray(titles)).toBe(true);
     expect(titles.length).toBe(0);
   });
+
+  it('fetchTracklistByMbid uses cache when available', async () => {
+    (cacheRepo.findTracklist as jest.Mock).mockResolvedValue([
+      {
+        title: 'Cached',
+        length: '1:00',
+        releaseDate: '2020-01-01',
+        hasVideo: false,
+      },
+    ]);
+    global.fetch = jest.fn();
+    const res = await service.fetchTrackInfosByMbid(
+      MBID.from('b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d'),
+    );
+    expect(res).toEqual([
+      {
+        title: 'Cached',
+        length: '1:00',
+        releaseDate: '2020-01-01',
+        hasVideo: false,
+      },
+    ]);
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('fetchTracklistByMbid caches parsed tracklist with release id', async () => {
+    (cacheRepo.findTracklist as jest.Mock).mockResolvedValue(null);
+    const xml = `
+      <metadata>
+        <release id="rel-1">
+          <date>1969-09-26</date>
+          <medium-list>
+            <medium>
+              <track-list>
+                <track><recording><title>Song A</title></recording><length>65000</length></track>
+              </track-list>
+            </medium>
+          </medium-list>
+        </release>
+      </metadata>`;
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => xml });
+    await service.fetchTrackInfosByMbid(
+      MBID.from('b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d'),
+    );
+    expect(cacheRepo.upsertTracklist).toHaveBeenCalledWith(
+      'rel-1',
+      [{ title: 'Song A', length: '1:05', releaseDate: '1969-09-26' }],
+      7,
+    );
+  });
+
+  it('searchReleaseMbid returns MBID on successful XML parse', async () => {
+    const xml = `
+      <metadata>
+        <release-list>
+          <release id="b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d"></release>
+        </release-list>
+      </metadata>`;
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => xml });
+    const res = await service.searchReleaseMbid('The Beatles', 'Abbey Road');
+    expect(res?.toString()).toBe('b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d');
+  });
+
+  it('searchReleaseMbid returns null on invalid input', async () => {
+    const res = await service.searchReleaseMbid('', '');
+    expect(res).toBeNull();
+  });
+
+  it('searchReleaseMbid returns null on HTTP error', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500 });
+    const res = await service.searchReleaseMbid('A', 'B');
+    expect(res).toBeNull();
+  });
 });

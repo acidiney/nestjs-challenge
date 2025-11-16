@@ -139,7 +139,9 @@ export class MusicBrainzService implements MusicMetadataService {
     const mediums = Array.isArray(mediumRaw) ? mediumRaw : [mediumRaw];
 
     for (const medium of mediums) {
-      const tracks = medium?.['track-list']?.track ?? [];
+      const tracksRaw = medium?.['track-list']?.track ?? [];
+
+      const tracks = Array.isArray(tracksRaw) ? tracksRaw : [tracksRaw];
 
       for (const tr of tracks) {
         const title = String(tr?.recording?.title).trim();
