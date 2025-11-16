@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'; // Import Swag
 import { resolve } from 'path';
 import { AppConfig } from './app.config';
 import { AppModule } from './app.module';
+import './instrument';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
