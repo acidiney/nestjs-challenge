@@ -6,6 +6,7 @@ import {
   OrdersRepository,
 } from '../domain/repositories/orders.repository';
 import { CreateOrderInput } from './inputs/create-order.input';
+import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class CreateOrderUseCase {
@@ -16,8 +17,13 @@ export class CreateOrderUseCase {
   ) {}
 
   async execute(dto: CreateOrderInput): Promise<OrderModel> {
-    const order = await this.repo.create(dto);
-    this.events.emit('cache.invalidate', 'record:list');
-    return order;
+    return Sentry.startSpan(
+      { name: 'CreateOrderUseCase#execute', op: 'usecase' },
+      async () => {
+        const order = await this.repo.create(dto);
+        this.events.emit('cache.invalidate', 'record:list');
+        return order;
+      },
+    );
   }
 }

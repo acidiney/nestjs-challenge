@@ -33,6 +33,7 @@ import { ListRecordsQuery } from '@/contexts/records/domain/queries/list-records
 import { RecordSortParam } from '@/contexts/records/domain/queries/sort.types';
 import { CustomCacheInterceptor } from '@/infrastructure/cache/custom-cache.interceptor';
 import { LookupMbidRequestDTO } from '../dtos/lookup-mbid.request.dto';
+import * as Sentry from '@sentry/nestjs';
 
 @Controller('records')
 export class RecordController {
@@ -50,16 +51,21 @@ export class RecordController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 409, description: 'Record already exists' })
   async create(@Body() request: CreateRecordRequestDTO): Promise<RecordOutput> {
-    const input: CreateRecordInput = {
-      artist: request.artist,
-      album: request.album,
-      price: request.price,
-      qty: request.qty,
-      format: request.format,
-      category: request.category,
-      mbid: request.mbid,
-    };
-    return this.createRecord.execute(input);
+    return Sentry.startSpan(
+      { name: 'RecordController#create', op: 'controller' },
+      async () => {
+        const input: CreateRecordInput = {
+          artist: request.artist,
+          album: request.album,
+          price: request.price,
+          qty: request.qty,
+          format: request.format,
+          category: request.category,
+          mbid: request.mbid,
+        };
+        return this.createRecord.execute(input);
+      },
+    );
   }
 
   @Put(':id')
@@ -70,16 +76,21 @@ export class RecordController {
     @Param('id') id: string,
     @Body() updateRecordDto: UpdateRecordRequestDTO,
   ): Promise<RecordOutput> {
-    const input: UpdateRecordInput = {
-      artist: updateRecordDto.artist,
-      album: updateRecordDto.album,
-      price: updateRecordDto.price,
-      qty: updateRecordDto.qty,
-      format: updateRecordDto.format,
-      category: updateRecordDto.category,
-      mbid: updateRecordDto.mbid,
-    };
-    return this.updateRecord.execute(id, input);
+    return Sentry.startSpan(
+      { name: 'RecordController#update', op: 'controller' },
+      async () => {
+        const input: UpdateRecordInput = {
+          artist: updateRecordDto.artist,
+          album: updateRecordDto.album,
+          price: updateRecordDto.price,
+          qty: updateRecordDto.qty,
+          format: updateRecordDto.format,
+          category: updateRecordDto.category,
+          mbid: updateRecordDto.mbid,
+        };
+        return this.updateRecord.execute(id, input);
+      },
+    );
   }
 
   @Get()
@@ -151,21 +162,26 @@ export class RecordController {
     @Query('pageSize') pageSize: number = 20,
     @Query('sort') sort: RecordSortParam = 'relevance',
   ): Promise<RecordsPageOutput> {
-    const terms: string[] = [];
-    if (q) terms.push(q);
-    if (artist) terms.push(artist);
-    if (album) terms.push(album);
+    return Sentry.startSpan(
+      { name: 'RecordController#findAll', op: 'controller' },
+      async () => {
+        const terms: string[] = [];
+        if (q) terms.push(q);
+        if (artist) terms.push(artist);
+        if (album) terms.push(album);
 
-    const request: ListRecordsQuery = {
-      search: terms.length ? terms.join(' ') : undefined,
-      category,
-      format,
-      sort,
-      page,
-      pageSize,
-    };
+        const request: ListRecordsQuery = {
+          search: terms.length ? terms.join(' ') : undefined,
+          category,
+          format,
+          sort,
+          page,
+          pageSize,
+        };
 
-    return this.listRecords.execute(request);
+        return this.listRecords.execute(request);
+      },
+    );
   }
 
   @Post('mbid/search')
@@ -175,7 +191,15 @@ export class RecordController {
   async searchMbid(
     @Body() body: LookupMbidRequestDTO,
   ): Promise<{ mbid: string | null }> {
-    const mbid = await this.metadata.searchReleaseMbid(body.artist, body.album);
-    return { mbid: mbid ? mbid.toString() : null };
+    return Sentry.startSpan(
+      { name: 'RecordController#searchMbid', op: 'controller' },
+      async () => {
+        const mbid = await this.metadata.searchReleaseMbid(
+          body.artist,
+          body.album,
+        );
+        return { mbid: mbid ? mbid.toString() : null };
+      },
+    );
   }
 }

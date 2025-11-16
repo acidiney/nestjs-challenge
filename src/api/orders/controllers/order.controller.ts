@@ -5,6 +5,7 @@ import { OrdersPageOutput } from '@/contexts/orders/application/outputs/orders-p
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { CreateOrderRequestDTO } from '../dtos/create-order.request.dto';
+import * as Sentry from '@sentry/nestjs';
 
 @Controller('orders')
 export class OrderController {
@@ -24,10 +25,15 @@ export class OrderController {
   @ApiResponse({ status: 404, description: 'Record not found' })
   @ApiResponse({ status: 409, description: 'Insufficient stock' })
   async create(@Body() request: CreateOrderRequestDTO): Promise<OrderOutput> {
-    return this.createOrder.execute({
-      recordId: request.recordId,
-      quantity: request.quantity,
-    });
+    return Sentry.startSpan(
+      { name: 'OrderController#create', op: 'controller' },
+      async () => {
+        return this.createOrder.execute({
+          recordId: request.recordId,
+          quantity: request.quantity,
+        });
+      },
+    );
   }
 
   @Get()
@@ -39,6 +45,11 @@ export class OrderController {
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 20,
   ): Promise<OrdersPageOutput> {
-    return this.listOrders.execute(page, pageSize);
+    return Sentry.startSpan(
+      { name: 'OrderController#findAll', op: 'controller' },
+      async () => {
+        return this.listOrders.execute(page, pageSize);
+      },
+    );
   }
 }

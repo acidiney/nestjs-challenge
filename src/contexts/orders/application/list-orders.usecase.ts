@@ -6,6 +6,7 @@ import {
 } from '../domain/repositories/orders.repository';
 import { OrderOutput } from './outputs/order.output';
 import { OrdersPageOutput } from './outputs/orders-page.output';
+import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class ListOrdersUseCase {
@@ -18,14 +19,18 @@ export class ListOrdersUseCase {
     page: number = 1,
     pageSize: number = 20,
   ): Promise<OrdersPageOutput> {
-    const items: OrderModel[] = await this.repo.findAll(page, pageSize);
-
-    const total = await this.repo.count();
-    return {
-      page,
-      perPage: pageSize,
-      total,
-      data: items.map((o) => OrderOutput.fromModel(o)),
-    };
+    return Sentry.startSpan(
+      { name: 'ListOrdersUseCase#execute', op: 'usecase' },
+      async () => {
+        const items: OrderModel[] = await this.repo.findAll(page, pageSize);
+        const total = await this.repo.count();
+        return {
+          page,
+          perPage: pageSize,
+          total,
+          data: items.map((o) => OrderOutput.fromModel(o)),
+        };
+      },
+    );
   }
 }

@@ -19,6 +19,7 @@ import { MongoRecordsReadRepository } from '../../contexts/records/infrastructur
 import { MongoRecordsRepository } from '../../contexts/records/infrastructure/persistence/mongoose/repositories/mongo-records.repository';
 import { RecordsTracklistLoader } from '../../infrastructure/loaders/records-tracklist.loader';
 import { RecordController } from './controllers/record.controller';
+import * as Sentry from '@sentry/nestjs';
 
 @Module({
   imports: [
@@ -48,11 +49,16 @@ export class RecordModule implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    try {
-      await this.recordModel.syncIndexes();
-    } catch (err) {
-      const trace = err instanceof Error ? err.stack : String(err);
-      this.logger.error('Failed to sync Record indexes', trace);
-    }
+    return Sentry.startSpan(
+      { name: 'RecordModule#onModuleInit', op: 'init' },
+      async () => {
+        try {
+          await this.recordModel.syncIndexes();
+        } catch (err) {
+          const trace = err instanceof Error ? err.stack : String(err);
+          this.logger.error('Failed to sync Record indexes', trace);
+        }
+      },
+    );
   }
 }

@@ -1,5 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as Sentry from '@sentry/nestjs';
 
 import { RecordModel } from '@/contexts/records/domain/models/record.model';
 import { ListRecordsQuery } from '../../../../domain/queries/list-records.query';
@@ -73,33 +74,43 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
   }
 
   async findAll(query?: ListRecordsQuery): Promise<RecordModel[]> {
-    const filter = this.buildFilter(query);
-    const sort = this.buildSort(query);
-    const projection = {} as any;
+    return Sentry.startSpan(
+      { name: 'MongoRecordsReadRepository#findAll', op: 'db' },
+      async () => {
+        const filter = this.buildFilter(query);
+        const sort = this.buildSort(query);
+        const projection = {} as any;
 
-    if (query?.search) {
-      projection.score = { $meta: 'textScore' };
-    }
+        if (query?.search) {
+          projection.score = { $meta: 'textScore' };
+        }
 
-    const page = query?.page && query.page > 0 ? query.page : 1;
-    const pageSize =
-      query?.pageSize && query.pageSize > 0 ? query.pageSize : 20;
+        const page = query?.page && query.page > 0 ? query.page : 1;
+        const pageSize =
+          query?.pageSize && query.pageSize > 0 ? query.pageSize : 20;
 
-    const results = await this.recordModel
-      .find(filter)
-      .select(projection)
-      .sort(sort)
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
-      .lean()
-      .exec();
+        const results = await this.recordModel
+          .find(filter)
+          .select(projection)
+          .sort(sort)
+          .skip((page - 1) * pageSize)
+          .limit(pageSize)
+          .lean()
+          .exec();
 
-    return results.map(this.mapToModel);
+        return results.map(this.mapToModel);
+      },
+    );
   }
 
   async count(query?: ListRecordsQuery): Promise<number> {
-    const filter: any = this.buildFilter(query);
-    return this.recordModel.countDocuments(filter).exec();
+    return Sentry.startSpan(
+      { name: 'MongoRecordsReadRepository#count', op: 'db' },
+      async () => {
+        const filter: any = this.buildFilter(query);
+        return this.recordModel.countDocuments(filter).exec();
+      },
+    );
   }
 
   async findByUnique(
@@ -107,16 +118,25 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
     album: string,
     format: string,
   ): Promise<RecordModel | null> {
-    const result = await this.recordModel
-      .findOne({ artist, album, format })
-      .lean()
-      .exec();
-    return result && this.mapToModel(result);
+    return Sentry.startSpan(
+      { name: 'MongoRecordsReadRepository#findByUnique', op: 'db' },
+      async () => {
+        const result = await this.recordModel
+          .findOne({ artist, album, format })
+          .lean()
+          .exec();
+        return result && this.mapToModel(result);
+      },
+    );
   }
 
   async findById(id: string): Promise<RecordModel | null> {
-    const result = await this.recordModel.findById(id).lean().exec();
-
-    return result && this.mapToModel(result);
+    return Sentry.startSpan(
+      { name: 'MongoRecordsReadRepository#findById', op: 'db' },
+      async () => {
+        const result = await this.recordModel.findById(id).lean().exec();
+        return result && this.mapToModel(result);
+      },
+    );
   }
 }

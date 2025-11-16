@@ -15,6 +15,7 @@ import {
   MUSIC_METADATA_SERVICE,
   MusicMetadataService,
 } from './services/music-metadata.service';
+import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class CreateRecordUseCase {
@@ -29,24 +30,29 @@ export class CreateRecordUseCase {
   ) {}
 
   async execute(dto: CreateRecordInput): Promise<RecordOutput> {
-    const existing = await this.readRepo.findByUnique(
-      dto.artist,
-      dto.album,
-      dto.format,
+    return Sentry.startSpan(
+      { name: 'CreateRecordUseCase#execute', op: 'usecase' },
+      async () => {
+        const existing = await this.readRepo.findByUnique(
+          dto.artist,
+          dto.album,
+          dto.format,
+        );
+
+        if (existing) {
+          throw new ConflictException('Record already exists');
+        }
+
+        let tracklist: Tracklist[] | undefined;
+
+        if (dto.mbid) {
+          tracklist = await this.metadata.fetchTrackInfosByMbid(dto.mbid);
+        }
+
+        const created = await this.repo.create({ ...dto, tracklist });
+        this.events.emit('cache.invalidate', 'record:list');
+        return RecordOutput.fromModel(created);
+      },
     );
-
-    if (existing) {
-      throw new ConflictException('Record already exists');
-    }
-
-    let tracklist: Tracklist[] | undefined;
-
-    if (dto.mbid) {
-      tracklist = await this.metadata.fetchTrackInfosByMbid(dto.mbid);
-    }
-
-    const created = await this.repo.create({ ...dto, tracklist });
-    this.events.emit('cache.invalidate', 'record:list');
-    return RecordOutput.fromModel(created);
   }
 }

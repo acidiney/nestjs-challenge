@@ -18,6 +18,7 @@ import {
   MUSIC_METADATA_SERVICE,
   MusicMetadataService,
 } from './services/music-metadata.service';
+import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class UpdateRecordUseCase {
@@ -32,29 +33,36 @@ export class UpdateRecordUseCase {
   ) {}
 
   async execute(id: string, dto: UpdateRecordInput): Promise<RecordOutput> {
-    const record = await this.recordReadRepository.findById(id);
+    return Sentry.startSpan(
+      { name: 'UpdateRecordUseCase#execute', op: 'usecase' },
+      async () => {
+        const record = await this.recordReadRepository.findById(id);
 
-    if (!record) {
-      throw new InternalServerErrorException('Record not found');
-    }
+        if (!record) {
+          throw new InternalServerErrorException('Record not found');
+        }
 
-    let tracklist = record.tracklist;
+        let tracklist = record.tracklist;
 
-    if (dto.mbid && !dto.mbid?.equals(record.mbid)) {
-      tracklist = await this.metadata.fetchTrackInfosByMbid(dto.mbid);
-    }
+        if (dto.mbid && !dto.mbid?.equals(record.mbid)) {
+          tracklist = await this.metadata.fetchTrackInfosByMbid(dto.mbid);
+        }
 
-    const updatedDto = Object.assign(record, dto, {
-      tracklist,
-    });
+        const updatedDto = Object.assign(record, dto, {
+          tracklist,
+        });
 
-    if (!dto.mbid && record.mbid) {
-      updatedDto.mbid = undefined;
-      updatedDto.tracklist = [];
-    }
+        if (!dto.mbid && record.mbid) {
+          updatedDto.mbid = undefined;
+          updatedDto.tracklist = [];
+        }
 
-    await this.repo.updateById(id, updatedDto);
-    this.events.emit('cache.invalidate', 'record:list');
-    return RecordOutput.fromModel(await this.recordReadRepository.findById(id));
+        await this.repo.updateById(id, updatedDto);
+        this.events.emit('cache.invalidate', 'record:list');
+        return RecordOutput.fromModel(
+          await this.recordReadRepository.findById(id),
+        );
+      },
+    );
   }
 }

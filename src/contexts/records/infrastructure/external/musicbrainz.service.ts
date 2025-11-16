@@ -7,6 +7,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { XMLParser } from 'fast-xml-parser';
 import { Tracklist } from '../../domain/types/tracklist.type';
 import { MBID } from '../../domain/value-objects/mbid.vo';
+import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class MusicBrainzService implements MusicMetadataService {
@@ -23,56 +24,66 @@ export class MusicBrainzService implements MusicMetadataService {
   ) {}
 
   async fetchTrackInfosByMbid(mbid: MBID): Promise<Tracklist[]> {
-    const url = this.buildReleaseUrl(mbid.toString());
-    try {
-      const xml = await this.fetchXml(url);
-      return this.parseXmlAndExtractTrackInfos(xml);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      this.logger.warn(
-        `MusicBrainz fetch (details) failed for mbid=${mbid}: ${message}`,
-      );
-      return [];
-    }
+    return Sentry.startSpan(
+      { name: 'MusicBrainzService#fetchTrackInfosByMbid', op: 'external' },
+      async () => {
+        const url = this.buildReleaseUrl(mbid.toString());
+        try {
+          const xml = await this.fetchXml(url);
+          return this.parseXmlAndExtractTrackInfos(xml);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          this.logger.warn(
+            `MusicBrainz fetch (details) failed for mbid=${mbid}: ${message}`,
+          );
+          return [];
+        }
+      },
+    );
   }
 
   async searchReleaseMbid(artist: string, album: string): Promise<MBID | null> {
-    const qArtist = artist.trim();
-    const qAlbum = album.trim();
-    if (!qArtist || !qAlbum) return null;
-    const params = new URLSearchParams({
-      query: `artist:"${qArtist}" AND release:"${qAlbum}"`,
-      fmt: this.DEFAULT_FMT,
-    });
+    return Sentry.startSpan(
+      { name: 'MusicBrainzService#searchReleaseMbid', op: 'external' },
+      async () => {
+        const qArtist = artist.trim();
+        const qAlbum = album.trim();
+        if (!qArtist || !qAlbum) return null;
+        const params = new URLSearchParams({
+          query: `artist:"${qArtist}" AND release:"${qAlbum}"`,
+          fmt: this.DEFAULT_FMT,
+        });
 
-    const url = new URL(`release/?${params.toString()}`, this.BASE_URL);
+        const url = new URL(`release/?${params.toString()}`, this.BASE_URL);
 
-    try {
-      const xml = await this.fetchXml(url);
-      const parser = new XMLParser({
-        ignoreAttributes: false,
-        attributeNamePrefix: '',
-      });
+        try {
+          const xml = await this.fetchXml(url);
+          const parser = new XMLParser({
+            ignoreAttributes: false,
+            attributeNamePrefix: '',
+          });
 
-      const obj = parser.parse(xml);
-      const list = obj?.metadata?.['release-list'];
-      const releasesRaw = list?.release ?? [];
-      const releases = Array.isArray(releasesRaw)
-        ? releasesRaw
-        : releasesRaw
-          ? [releasesRaw]
-          : [];
-      const best: any = releases[0];
-      const id = (best?.id || '').trim();
-      if (!id || !MBID.isValid(id)) return null;
-      return MBID.from(id);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      this.logger.warn(
-        `MusicBrainz search (XML) failed for artist="${qArtist}" album="${qAlbum}": ${message}`,
-      );
-      return null;
-    }
+          const obj = parser.parse(xml);
+          const list = obj?.metadata?.['release-list'];
+          const releasesRaw = list?.release ?? [];
+          const releases = Array.isArray(releasesRaw)
+            ? releasesRaw
+            : releasesRaw
+              ? [releasesRaw]
+              : [];
+          const best: any = releases[0];
+          const id = (best?.id || '').trim();
+          if (!id || !MBID.isValid(id)) return null;
+          return MBID.from(id);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          this.logger.warn(
+            `MusicBrainz search (XML) failed for artist="${qArtist}" album="${qAlbum}": ${message}`,
+          );
+          return null;
+        }
+      },
+    );
   }
 
   private buildReleaseUrl(mbid: string): URL {
@@ -87,16 +98,21 @@ export class MusicBrainzService implements MusicMetadataService {
   }
 
   private async fetchXml(url: URL): Promise<string> {
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': this.USER_AGENT,
-        Accept: 'application/xml',
+    return Sentry.startSpan(
+      { name: 'MusicBrainzService#fetchXml', op: 'external' },
+      async () => {
+        const res = await fetch(url, {
+          headers: {
+            'User-Agent': this.USER_AGENT,
+            Accept: 'application/xml',
+          },
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        return res.text();
       },
-    });
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
-    return res.text();
+    );
   }
 
   private parseXmlAndExtractTrackInfos(xml: string): {

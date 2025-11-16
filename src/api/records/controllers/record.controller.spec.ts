@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { CreateRecordUseCase } from '@/contexts/records/application/create-record.usecase';
 import { ListRecordsUseCase } from '@/contexts/records/application/list-records.usecase';
+import { MUSIC_METADATA_SERVICE } from '@/contexts/records/application/services/music-metadata.service';
 import { UpdateRecordUseCase } from '@/contexts/records/application/update-record.usecase';
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
@@ -27,6 +28,13 @@ describe('RecordController', () => {
         { provide: CreateRecordUseCase, useValue: createRecord },
         { provide: UpdateRecordUseCase, useValue: updateRecord },
         { provide: ListRecordsUseCase, useValue: listRecords },
+        {
+          provide: MUSIC_METADATA_SERVICE,
+          useValue: {
+            searchReleaseMbid: jest.fn(),
+            fetchTrackInfosByMbid: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
