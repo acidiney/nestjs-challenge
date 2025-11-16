@@ -64,8 +64,8 @@ describe('RecordController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/records?artist=The Fake Band')
       .expect(200);
-    expect(response.body.length).toBe(1);
-    expect(response.body[0]).toHaveProperty('artist', 'The Fake Band');
+    expect(response.body.total).toBe(1);
+    expect(response.body.data[0]).toHaveProperty('artist', 'The Fake Band');
   });
 
   it('should not create duplicate record entries', async () => {
@@ -83,7 +83,7 @@ describe('RecordController (e2e)', () => {
       .send(createRecordDto)
       .expect(201);
 
-    recordId = firstResponse.body._id;
+    recordId = firstResponse.body.id;
 
     await request(app.getHttpServer())
       .post('/records')
@@ -94,8 +94,8 @@ describe('RecordController (e2e)', () => {
       .get('/records?artist=The Beatles&album=Abbey Road&format=Vinyl')
       .expect(200);
 
-    expect(Array.isArray(listResponse.body)).toBe(true);
-    expect(listResponse.body.length).toBe(1);
+    expect(Array.isArray(listResponse.body.data)).toBe(true);
+    expect(listResponse.body.total).toBe(1);
   });
 
   describe('Create with MBID (metadata integration)', () => {

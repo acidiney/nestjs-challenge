@@ -3,6 +3,7 @@ import { ListRecordsQuery } from '../queries/list-records.query';
 
 export interface RecordsReadRepository {
   findAll(query?: ListRecordsQuery): Promise<RecordModel[]>;
+  count(query?: ListRecordsQuery): Promise<number>;
   findByUnique(
     artist: string,
     album: string,

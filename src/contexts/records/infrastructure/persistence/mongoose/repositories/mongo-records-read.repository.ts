@@ -11,26 +11,8 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
     @InjectModel('Record') private readonly recordModel: Model<Record>,
   ) {}
 
-  private mapToModel(record: Record): RecordModel {
-    return {
-      id: record._id.toString(),
-      artist: record.artist,
-      album: record.album,
-      price: record.price,
-      qty: record.qty,
-      category: record.category,
-      format: record.format,
-      created: record.created,
-      lastModified: record.lastModified,
-      mbid: record.mbid,
-      tracklist: (record as any).tracklist,
-    };
-  }
-
-  async findAll(query?: ListRecordsQuery): Promise<RecordModel[]> {
+  private buildFilter(query?: ListRecordsQuery): any {
     const filter: any = {};
-    const sort: any = {};
-
     if (query?.search) {
       filter.$text = { $search: query.search };
     }
@@ -40,7 +22,11 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
     if (query?.format) {
       filter.format = query.format;
     }
+    return filter;
+  }
 
+  private buildSort(query?: ListRecordsQuery): any {
+    const sort: any = {};
     switch (query?.sort) {
       case 'price':
         sort.price = 1;
@@ -62,6 +48,28 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
       default:
         sort.created = -1;
     }
+    return sort;
+  }
+
+  private mapToModel(record: Record): RecordModel {
+    return {
+      id: record._id.toString(),
+      artist: record.artist,
+      album: record.album,
+      price: record.price,
+      qty: record.qty,
+      category: record.category,
+      format: record.format,
+      created: record.created,
+      lastModified: record.lastModified,
+      mbid: record.mbid,
+      tracklist: (record as any).tracklist,
+    };
+  }
+
+  async findAll(query?: ListRecordsQuery): Promise<RecordModel[]> {
+    const filter = this.buildFilter(query);
+    const sort = this.buildSort(query);
 
     const page = query?.page && query.page > 0 ? query.page : 1;
     const pageSize =
@@ -76,6 +84,11 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
       .exec();
 
     return results.map(this.mapToModel);
+  }
+
+  async count(query?: ListRecordsQuery): Promise<number> {
+    const filter: any = this.buildFilter(query);
+    return this.recordModel.countDocuments(filter).exec();
   }
 
   async findByUnique(

@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   RECORDS_READ_REPOSITORY,
   RecordsReadRepository,
@@ -28,6 +29,7 @@ export class UpdateRecordUseCase {
     private readonly recordReadRepository: RecordsReadRepository,
     @Inject(MUSIC_METADATA_SERVICE)
     private readonly metadata: MusicMetadataService,
+    private readonly events: EventEmitter2 = new EventEmitter2(),
   ) {}
 
   async execute(id: string, dto: UpdateRecordInput): Promise<RecordOutput> {
@@ -52,7 +54,7 @@ export class UpdateRecordUseCase {
     });
 
     await this.repo.updateById(id, updatedDto);
-
+    this.events.emit('cache.invalidate', 'record:list');
     return RecordOutput.fromModel(await this.recordReadRepository.findById(id));
   }
 }

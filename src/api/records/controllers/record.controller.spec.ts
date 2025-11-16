@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { CreateRecordUseCase } from '@/contexts/records/application/create-record.usecase';
@@ -20,6 +21,7 @@ describe('RecordController', () => {
     listRecords = { execute: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [CacheModule.register()],
       controllers: [RecordController],
       providers: [
         { provide: CreateRecordUseCase, useValue: createRecord },
@@ -61,15 +63,20 @@ describe('RecordController', () => {
     });
   });
 
-  it('should return an array of records', async () => {
-    const records = [
-      { _id: '1', name: 'Record 1', price: 100, qty: 10 },
-      { _id: '2', name: 'Record 2', price: 200, qty: 20 },
-    ];
-    listRecords.execute.mockResolvedValue(records as any);
+  it('should return paginated records', async () => {
+    const payload = {
+      page: 1,
+      totalRecords: 2,
+      perPage: 20,
+      data: [
+        { id: '1', artist: 'A', album: 'R1', price: 100, qty: 10 },
+        { id: '2', artist: 'B', album: 'R2', price: 200, qty: 20 },
+      ],
+    } as any;
+    listRecords.execute.mockResolvedValue(payload);
 
     const result = await recordController.findAll();
-    expect(result).toEqual(records);
+    expect(result).toEqual(payload);
     expect(listRecords.execute).toHaveBeenCalledWith(
       expect.objectContaining({ page: 1, pageSize: 20, sort: 'relevance' }),
     );

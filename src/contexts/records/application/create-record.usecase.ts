@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   RECORDS_READ_REPOSITORY,
   RecordsReadRepository,
@@ -28,6 +29,7 @@ export class CreateRecordUseCase {
     private readonly readRepo: RecordsReadRepository,
     @Inject(MUSIC_METADATA_SERVICE)
     private readonly metadata: MusicMetadataService,
+    private readonly events: EventEmitter2 = new EventEmitter2(),
   ) {}
 
   async execute(dto: CreateRecordInput): Promise<RecordOutput> {
@@ -52,6 +54,7 @@ export class CreateRecordUseCase {
     }
 
     const created = await this.repo.create({ ...dto, tracklist });
+    this.events.emit('cache.invalidate', 'record:list');
     return RecordOutput.fromModel(created);
   }
 }

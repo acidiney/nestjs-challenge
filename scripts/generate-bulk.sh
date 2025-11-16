@@ -14,7 +14,7 @@ MODE=${3:-local}
 # Resolve MONGO_URL from env or .env
 if [[ "$MODE" == "--docker" ]]; then
   echo "Running bulk generation inside Docker container 'mongodb'"
-  CMD=(docker compose -f ./docker-compose-mongo.yml exec -T mongodb mongosh "mongodb://localhost:27017/records")
+  CMD=(docker compose -f ./docker-compose.yml exec -T mongodb mongosh "mongodb://localhost:27017/records")
 else
   if [[ -z "${MONGO_URL:-}" ]]; then
     if [[ -f .env ]]; then

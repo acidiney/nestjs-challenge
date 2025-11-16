@@ -35,9 +35,16 @@ describe('GET /records (findAll) - e2e', () => {
     await app.close();
   });
 
-  it('returns 200 and an array', async () => {
+  it('returns 200 and paginated payload', async () => {
     const res = await request(app.getHttpServer()).get('/records').expect(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        page: expect.any(Number),
+        perPage: expect.any(Number),
+        total: expect.any(Number),
+        data: expect.any(Array),
+      }),
+    );
   });
 
   it('includes newly created records', async () => {
@@ -71,9 +78,9 @@ describe('GET /records (findAll) - e2e', () => {
     createdIds.push(createB.body._id);
 
     const res = await request(app.getHttpServer()).get('/records').expect(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    const hasA = res.body.some((r: any) => r.artist === 'E2E Artist A');
-    const hasB = res.body.some((r: any) => r.artist === 'E2E Artist B');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    const hasA = res.body.data.some((r: any) => r.artist === 'E2E Artist A');
+    const hasB = res.body.data.some((r: any) => r.artist === 'E2E Artist B');
     expect(hasA).toBe(true);
     expect(hasB).toBe(true);
   });
@@ -94,8 +101,8 @@ describe('GET /records (findAll) - e2e', () => {
     const res = await request(app.getHttpServer())
       .get('/records?artist=E2E%20Artist%20A')
       .expect(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    const hasA = res.body.some((r: any) => r.artist === 'E2E Artist A');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    const hasA = res.body.data.some((r: any) => r.artist === 'E2E Artist A');
     expect(hasA).toBe(true);
   });
 
@@ -131,9 +138,9 @@ describe('GET /records (findAll) - e2e', () => {
     const res = await request(app.getHttpServer())
       .get('/records?artist=E2E%20SortPrice&sort=price')
       .expect(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThanOrEqual(3);
-    const prices = res.body.map((r: any) => r.price);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(3);
+    const prices = res.body.data.map((r: any) => r.price);
     // Ensure first three are ordered ascending by price for the filtered set
     expect(prices.slice(0, 3)).toEqual([10, 20, 30]);
   });
@@ -167,9 +174,11 @@ describe('GET /records (findAll) - e2e', () => {
       .get('/records?artist=E2E%20PaginateCase&sort=artist&page=2&pageSize=2')
       .expect(200);
 
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBe(2);
-    expect(res.body[0].artist).toBe('E2E PaginateCase C');
-    expect(res.body[1].artist).toBe('E2E PaginateCase D');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.page).toBe(2);
+    expect(res.body.perPage).toBe(2);
+    expect(res.body.data.length).toBe(2);
+    expect(res.body.data[0].artist).toBe('E2E PaginateCase C');
+    expect(res.body.data[1].artist).toBe('E2E PaginateCase D');
   });
 });
