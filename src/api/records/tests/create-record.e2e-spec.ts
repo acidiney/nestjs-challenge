@@ -91,7 +91,7 @@ describe('RecordController (e2e)', () => {
       .expect(409);
 
     const listResponse = await request(app.getHttpServer())
-      .get('/records?artist=The Beatles&album=Abbey Road&format=Vinyl')
+      .get('/records?q=The Beatles&album=Abbey Road&format=Vinyl')
       .expect(200);
 
     expect(Array.isArray(listResponse.body.data)).toBe(true);

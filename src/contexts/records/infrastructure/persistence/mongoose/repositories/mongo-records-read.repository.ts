@@ -20,10 +20,10 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
       };
     }
     if (query?.category) {
-      filter.category = query.category.toUpperCase();
+      filter.category = query.category;
     }
     if (query?.format) {
-      filter.format = query.format.toUpperCase();
+      filter.format = query.format;
     }
     return filter;
   }

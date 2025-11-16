@@ -42,8 +42,8 @@ const NUM_ORDERS = $NUM_ORDERS;
 const BATCH = 5000;
 
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-const formats = ['VINYL','CD','CASSETTE'];
-const categories = ['ROCK','POP','JAZZ','INDIE','CLASSICAL'];
+const formats = ['Vinyl','CD','Cassette', 'Digital'];
+const categories = ['Rock','Pop','Jazz','Indie','Classical'];
 
 print('Cleaning indexes to speed up inserts (they will be rebuilt by the app)...');
 try { db.records.dropIndexes(); } catch (e) {}
