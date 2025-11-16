@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "mongo:start": "docker compose -f ./docker-compose-mongo.yml up -d",
+    "mongo:start": "docker compose -f ./docker-compose.yml up -d",
     "mongo:generate:bulk": "bash ./scripts/generate-bulk.sh 100000 100000 --docker ",
     "start": "nest start",
     "start:dev": "nest start --watch",

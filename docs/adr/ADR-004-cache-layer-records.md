@@ -15,11 +15,11 @@ Introduce a Valkey-backed cache using NestJS’s `@nestjs/cache-manager` and `ca
 ## Implementation Sketch
 
 - Global cache setup
-  - `src/app.module.ts:10-25` registers `CacheModule` globally with a Valkey store.
+  - `src/app.module.ts` registers `CacheModule` globally with a Valkey store.
 - Invalidation events
 
-  - Emit `cache.invalidate.records` after successful writes:
-  - Listener: `src/infrastructure/cache/cache-invalidation.listener.ts:10-15` handles the event and clears the cache store.
+  - Emit `cache.invalidate` after successful writes:
+  - Listener: `src/infrastructure/cache/cache-invalidation.listener.ts` handles the event and clears the cache store.
 
 - Error handling
   - Cache failures (store unreachable or operations failing) are swallowed in interceptor/listener; the request continues to query MongoDB without raising client-visible errors.
@@ -56,7 +56,7 @@ Introduce a Valkey-backed cache using NestJS’s `@nestjs/cache-manager` and `ca
 
 ## Rollout Plan
 
-1. Provision Valkey in Docker Compose (`docker-compose-mongo.yml`).
+1. Provision Valkey in Docker Compose (`docker-compose.yml`).
 2. Configure global cache and route-level decorators.
 3. Emit events from create/update/order flows and wire the listener.
 4. Validate with unit and e2e tests; ensure cache bypass in tests.
