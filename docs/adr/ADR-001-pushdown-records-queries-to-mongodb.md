@@ -41,9 +41,12 @@ RecordSchema.index(
   },
 );
 
-RecordSchema.index({ genre: 1, price: 1 }, { name: 'idx_genre_price' });
-RecordSchema.index({ releasedAt: -1 }, { name: 'idx_releasedAt_desc' });
-RecordSchema.index({ availableStock: 1 }, { name: 'idx_availableStock' });
+RecordSchema.index({ category: 1, price: 1 }, { name: 'idx_category_price' });
+
+RecordSchema.index({ price: 1 }, { name: 'idx_price_asc' });
+RecordSchema.index({ format: 1 }, { name: 'idx_format' });
+RecordSchema.index({ created: -1 }, { name: 'idx_created_desc' });
+RecordSchema.index({ lastModified: -1 }, { name: 'idx_lastModified_desc' });
 ```
 
 Ensure indexes are created at application bootstrap:
