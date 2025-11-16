@@ -1,29 +1,121 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin</title>
   <style>
-    body{font-family:system-ui,Arial,sans-serif;margin:20px}
-    h1{margin-bottom:8px}
-    section{margin-bottom:24px;padding:16px;border:1px solid #ddd;border-radius:8px}
-    table{width:100%;border-collapse:collapse;margin-top:8px}
-    th,td{border:1px solid #eee;padding:8px;text-align:left}
-    label{display:block;margin:6px 0}
-    input,select{padding:6px;width:100%;max-width:320px}
-    button{padding:8px 12px;margin-top:8px}
-    .row{display:flex;gap:16px;flex-wrap:wrap}
-    .row > div{flex:1 1 320px}
-    .muted{color:#b3b3b3;font-size:12px}
-    .error{color:#b00020}
-    .success{color:#087f23}
-    .nav{display:flex;gap:12px;margin:12px 0 20px}
-    .nav a{padding:8px 12px;border-radius:6px;text-decoration:none;color:#333;border:1px solid #ddd}
-    .nav a.active{background:#f5f5f5;border-color:#bbb}
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000}
-    .modal{background:#fff;border-radius:8px;padding:16px;width:90%;max-width:640px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
-    [x-cloak]{display:none !important}
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      margin: 20px
+    }
+
+    h1 {
+      margin-bottom: 8px
+    }
+
+    section {
+      margin-bottom: 24px;
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px
+    }
+
+    th,
+    td {
+      border: 1px solid #eee;
+      padding: 8px;
+      text-align: left
+    }
+
+    label {
+      display: block;
+      margin: 6px 0
+    }
+
+    input,
+    select {
+      padding: 6px;
+      width: 100%;
+      max-width: 320px
+    }
+
+    button {
+      padding: 8px 12px;
+      margin-top: 8px
+    }
+
+    .row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap
+    }
+
+    .row>div {
+      flex: 1 1 320px
+    }
+
+    .muted {
+      color: #b3b3b3;
+      font-size: 12px
+    }
+
+    .error {
+      color: #b00020
+    }
+
+    .success {
+      color: #087f23
+    }
+
+    .nav {
+      display: flex;
+      gap: 12px;
+      margin: 12px 0 20px
+    }
+
+    .nav a {
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #333;
+      border: 1px solid #ddd
+    }
+
+    .nav a.active {
+      background: #f5f5f5;
+      border-color: #bbb
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      width: 90%;
+      max-width: 640px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2)
+    }
+
+    [x-cloak] {
+      display: none !important
+    }
   </style>
 
   <meta name="description" content="Admin panel for managing records and orders." />
@@ -33,15 +125,23 @@
   <link rel="preconnect" href="https://cdn.tailwindcss.com">
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 </head>
+
 <body class="min-h-screen bg-gray-900 text-gray-100">
   <div x-data="admin()" x-init="init()" class="max-w-7xl mx-auto w-full min-h-screen px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
     <h1>Admin Panel</h1>
     <p class="muted">Manage records and orders.</p>
     <nav class="flex flex-wrap gap-2 sm:gap-3 mt-6 mb-6" aria-label="Primary">
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='dashboard' ? 'bg-gray-800 border-gray-600' : ''" :aria-current="page==='dashboard' ? 'page' : null" @click.prevent="setPage('dashboard')">Dashboard</a>
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='records' ? 'bg-gray-800 border-gray-600' : ''" :aria-current="page==='records' ? 'page' : null" @click.prevent="setPage('records')">Records</a>
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='orders' ? 'bg-gray-800 border-gray-600' : ''" :aria-current="page==='orders' ? 'page' : null" @click.prevent="setPage('orders')">Orders</a>
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm"
+        :class="page==='dashboard' ? 'bg-gray-800 border-gray-600' : ''"
+        :aria-current="page==='dashboard' ? 'page' : null" @click.prevent="setPage('dashboard')">Dashboard</a>
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm"
+        :class="page==='records' ? 'bg-gray-800 border-gray-600' : ''" :aria-current="page==='records' ? 'page' : null"
+        @click.prevent="setPage('records')">Records</a>
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm"
+        :class="page==='orders' ? 'bg-gray-800 border-gray-600' : ''" :aria-current="page==='orders' ? 'page' : null"
+        @click.prevent="setPage('orders')">Orders</a>
     </nav>
 
     <section x-show="page==='dashboard'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
@@ -58,14 +158,21 @@
     <section x-show="page==='records'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
       <div class="flex items-center justify-between mb-4">
         <h2>Records</h2>
-        <button type="button" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" @click="openCreateModal()" aria-label="Create new record">New Record</button>
+        <button type="button"
+          class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          @click="openCreateModal()" aria-label="Create new record">New Record</button>
       </div>
       <div class="row">
         <div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <label class="block text-sm font-medium">Search<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100 placeholder-gray-400" type="text" x-model="search" @keyup.enter="currentPage=1; load()" @blur="currentPage=1; load()" placeholder="Beatles, Abbey Road..."></label>
+            <label class="block text-sm font-medium">Search<input
+                class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100 placeholder-gray-400"
+                type="text" x-model="search" @keyup.enter="currentPage=1; load()" @blur="currentPage=1; load()"
+                placeholder="Beatles, Abbey Road..."></label>
             <label class="block text-sm font-medium" for="formatFilter">format
-              <select id="formatFilter" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="formatFilter" @change="currentPage=1; load()">
+              <select id="formatFilter"
+                class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+                x-model="formatFilter" @change="currentPage=1; load()">
                 <option value="">Any</option>
                 <option>Vinyl</option>
                 <option>CD</option>
@@ -74,7 +181,9 @@
               </select>
             </label>
             <label class="block text-sm font-medium" for="categoryFilter">Category
-              <select id="categoryFilter" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="categoryFilter" @change="currentPage=1; load()">
+              <select id="categoryFilter"
+                class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+                x-model="categoryFilter" @change="currentPage=1; load()">
                 <option value="">Any</option>
                 <option>Rock</option>
                 <option>Jazz</option>
@@ -86,14 +195,18 @@
               </select>
             </label>
             <label class="block text-sm font-medium" for="sortParam">Sort
-              <select id="sortParam" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="sortParam" @change="currentPage=1; load()">
+              <select id="sortParam"
+                class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+                x-model="sortParam" @change="currentPage=1; load()">
                 <option value="created">Created</option>
                 <option value="price">Price</option>
                 <option value="relevance">Relevance</option>
               </select>
             </label>
           </div>
-          <div class="text-gray-400 text-sm" role="status" aria-live="polite" x-text="loading ? 'Loading records...' : ('Page ' + currentPage + ' of ' + totalPages + ' • ' + records.length + ' items loaded')"></div>
+          <div class="text-gray-400 text-sm" role="status" aria-live="polite"
+            x-text="loading ? 'Loading records...' : ('Page ' + currentPage + ' of ' + totalPages + ' • ' + records.length + ' items loaded')">
+          </div>
           <div class="sm:hidden space-y-3 mt-3">
             <template x-for="r in records" :key="r.id">
               <div class="rounded-lg border border-gray-700 bg-gray-900 p-3">
@@ -106,109 +219,139 @@
                       <span x-text="'Qty: ' + r.qty"></span>
                     </div>
                     <div class="text-xs text-gray-400 mt-1">
-                      <span class="inline-block px-2 py-0.5 rounded bg-gray-800 border border-gray-700" x-text="r.format"></span>
-                      <span class="inline-block px-2 py-0.5 rounded bg-gray-800 border border-gray-700 ml-2" x-text="r.category"></span>
+                      <span class="inline-block px-2 py-0.5 rounded bg-gray-800 border border-gray-700"
+                        x-text="r.format"></span>
+                      <span class="inline-block px-2 py-0.5 rounded bg-gray-800 border border-gray-700 ml-2"
+                        x-text="r.category"></span>
                     </div>
                   </div>
                   <div class="text-green-400" x-show="r.mbid">
-                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18"
+                      height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
                     <span class="sr-only">MBID available</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-4 mt-3">
-                  <button class="text-blue-400 hover:text-blue-300 underline" type="button" @click="selectRecord(r)">Edit</button>
+                  <button class="text-blue-400 hover:text-blue-300 underline" type="button"
+                    @click="selectRecord(r)">Edit</button>
                   <template x-if="r.mbid">
-                    <button class="text-gray-300 hover:text-gray-100 underline" type="button" @click="openTrackSlider(r)" :aria-expanded="Boolean(expanded[r.id])" :aria-controls="'tracks-'+r.id">Show tracks</button>
+                    <button class="text-gray-300 hover:text-gray-100 underline" type="button"
+                      @click="openTrackSlider(r)" :aria-expanded="Boolean(expanded[r.id])"
+                      :aria-controls="'tracks-'+r.id">Show tracks</button>
                   </template>
                 </div>
               </div>
             </template>
           </div>
           <div class="overflow-x-auto -mx-4 sm:mx-0">
-          <table class="hidden sm:table min-w-full text-sm border border-gray-700 rounded-lg overflow-hidden mt-3 bg-gray-900">
-            <caption class="sr-only">Records list</caption>
-            <thead>
-              <tr>
-                <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Artist</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Album</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Price</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Format</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Category</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">MBID</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-            <template x-for="r in records" :key="r.id">
-              <tr>
-                <td class="border-t border-gray-700 px-3 py-2" x-text="r.artist"></td>
-                <td class="border-t border-gray-700 px-3 py-2" x-text="r.album"></td>
-                <td class="border-t border-gray-700 px-3 py-2" x-text="r.price"></td>
-                <td class="border-t border-gray-700 px-3 py-2" x-text="r.qty"></td>
-                <td class="border-t border-gray-700 px-3 py-2 hidden sm:table-cell" x-text="r.format"></td>
-                <td class="border-t border-gray-700 px-3 py-2 hidden sm:table-cell" x-text="r.category"></td>
+            <table
+              class="hidden sm:table min-w-full text-sm border border-gray-700 rounded-lg overflow-hidden mt-3 bg-gray-900">
+              <caption class="sr-only">Records list</caption>
+              <thead>
+                <tr>
+                  <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Artist</th>
+                  <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Album</th>
+                  <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Price</th>
+                  <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th>
+                  <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">
+                    Format</th>
+                  <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">
+                    Category</th>
+                  <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">
+                    MBID</th>
+                  <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="r in records" :key="r.id">
+                  <tr>
+                    <td class="border-t border-gray-700 px-3 py-2" x-text="r.artist"></td>
+                    <td class="border-t border-gray-700 px-3 py-2" x-text="r.album"></td>
+                    <td class="border-t border-gray-700 px-3 py-2" x-text="r.price"></td>
+                    <td class="border-t border-gray-700 px-3 py-2" x-text="r.qty"></td>
+                    <td class="border-t border-gray-700 px-3 py-2 hidden sm:table-cell" x-text="r.format"></td>
+                    <td class="border-t border-gray-700 px-3 py-2 hidden sm:table-cell" x-text="r.category"></td>
 
-                <td class="border-t border-gray-700 px-3 py-2 text-center hidden sm:table-cell">
-                  <template x-if="r.mbid">
-                    <span class="inline-flex items-center text-green-400">
-                      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6L9 17l-5-5" />
-                      </svg>
-                      <span class="sr-only">MBID available</span>
-                    </span>
-                  </template>
-                  <template x-if="!r.mbid">
-                    <span class="inline-flex items-center text-red-400">
-                      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6L6 18" />
-                        <path d="M6 6l12 12" />
-                      </svg>
-                      <span class="sr-only">MBID missing</span>
-                    </span>
-                  </template>
-                </td>
-
-                <td class="border-t border-gray-700 px-3 py-2">
-                  <div class="flex items-center gap-3">
-                    <button class="text-blue-400 hover:text-blue-300 underline" @click="selectRecord(r)">Edit</button>
-                    <template x-if="r.mbid">
-                      <button type="button" class="text-gray-300 hover:text-gray-100 underline" @click="openTrackSlider(r)" :aria-expanded="Boolean(expanded[r.id])" :aria-controls="'tracks-'+r.id">
-                        <span>Show tracks</span>
-                      </button>
-                    </template>
-                  </div>
-                </td>
-              </tr>
-
-              <tr>
-                <td colspan="8" :class="expanded[r.id] ? 'py-2' : 'py-0'">
-                  <div class="overflow-hidden transition-all duration-300 ease-in-out"
-                    :style="expanded[r.id] ? 'max-height:1000px;opacity:1;margin-top:0.75rem' : 'max-height:0;opacity:0;margin-top:0'" :id="'tracks-'+r.id">
-                    <div class="p-2 bg-gray-800 rounded">
-                      <div class="font-bold text-lg mb-2">Tracklist</div>
-                      <template x-for="t in r.tracklist" :key="t.title || t">
-                        <div class="flex justify-between border-b border-gray-700 last:border-b-0 py-1">
-                          <span x-text="typeof t === 'string' ? t : (t.title || '')"></span>
-                          <span x-text="typeof t === 'string' ? '' : (t.length || '')"></span>
-                        </div>
+                    <td class="border-t border-gray-700 px-3 py-2 text-center hidden sm:table-cell">
+                      <template x-if="r.mbid">
+                        <span class="inline-flex items-center text-green-400">
+                          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16"
+                            height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M20 6L9 17l-5-5" />
+                          </svg>
+                          <span class="sr-only">MBID available</span>
+                        </span>
                       </template>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </template>
-</tbody>
-          </table>
+                      <template x-if="!r.mbid">
+                        <span class="inline-flex items-center text-red-400">
+                          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16"
+                            height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M18 6L6 18" />
+                            <path d="M6 6l12 12" />
+                          </svg>
+                          <span class="sr-only">MBID missing</span>
+                        </span>
+                      </template>
+                    </td>
+
+                    <td class="border-t border-gray-700 px-3 py-2">
+                      <div class="flex items-center gap-3">
+                        <button class="text-blue-400 hover:text-blue-300 underline"
+                          @click="selectRecord(r)">Edit</button>
+                        <template x-if="r.mbid">
+                          <button type="button" class="text-gray-300 hover:text-gray-100 underline"
+                            @click="openTrackSlider(r)" :aria-expanded="Boolean(expanded[r.id])"
+                            :aria-controls="'tracks-'+r.id">
+                            <span>Show tracks</span>
+                          </button>
+                        </template>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td colspan="8" :class="expanded[r.id] ? 'py-2' : 'py-0'">
+                      <div class="overflow-hidden transition-all duration-300 ease-in-out"
+                        :style="expanded[r.id] ? 'max-height:1000px;opacity:1;margin-top:0.75rem' : 'max-height:0;opacity:0;margin-top:0'"
+                        :id="'tracks-'+r.id">
+                        <div class="p-2 bg-gray-800 rounded">
+                          <div class="font-bold text-lg mb-2">Tracklist</div>
+                          <template x-for="t in r.tracklist" :key="t.title || t">
+                            <div class="flex justify-between border-b border-gray-700 last:border-b-0 py-1">
+                              <span x-text="typeof t === 'string' ? t : (t.title || '')"></span>
+                              <span x-text="typeof t === 'string' ? '' : (t.length || '')"></span>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
           </div>
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4">
             <div class="flex flex-row items-center gap-2 sm:gap-3 justify-center sm:justify-start">
-              <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" type="button"
-                :disabled="currentPage <= 1 || loading"
-                @click="prevPage" :aria-label="'Previous page, current ' + currentPage">Prev</button>
-              <div class="text-gray-300 text-sm">Page <span x-text="currentPage"></span> / <span x-text="totalPages"></span></div>
-              <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" type="button"
-                :disabled="currentPage >= totalPages || loading"
-                @click="nextPage" :aria-label="'Next page, current ' + currentPage">Next</button>
+              <button
+                class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button" :disabled="currentPage <= 1 || loading" @click="prevPage"
+                :aria-label="'Previous page, current ' + currentPage">Prev</button>
+              <div class="text-gray-300 text-sm">Page <span x-text="currentPage"></span> / <span
+                  x-text="totalPages"></span></div>
+              <button
+                class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button" :disabled="currentPage >= totalPages || loading" @click="nextPage"
+                :aria-label="'Next page, current ' + currentPage">Next</button>
             </div>
             <div class="flex flex-col sm:flex-row items-center gap-2 sm:justify-end">
               <label class="text-sm text-gray-300" for="perPageSelect">Per page</label>
               <select id="perPageSelect" class="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100"
-                x-model.number="perPage"
-                @change="currentPage=1; load()">
+                x-model.number="perPage" @change="currentPage=1; load()">
                 <option :value="10">10</option>
                 <option :value="20">20</option>
                 <option :value="50">50</option>
@@ -229,23 +372,38 @@
         <div>
           <label class="block text-sm font-medium">Record</label>
           <div class="relative">
-            <button type="button" class="mt-1 w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100 text-left flex items-center justify-between" @click="openOrderRecordSelect">
-              <span x-text="orderRecordSelected ? (orderRecordSelected.artist + ' - ' + orderRecordSelected.album) : 'Select a record'"></span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-300"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z" clip-rule="evenodd"/></svg>
+            <button type="button"
+              class="mt-1 w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100 text-left flex items-center justify-between"
+              @click="openOrderRecordSelect">
+              <span
+                x-text="orderRecordSelected ? (orderRecordSelected.artist + ' - ' + orderRecordSelected.album) : 'Select a record'"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                class="w-4 h-4 text-gray-300">
+                <path fill-rule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+                  clip-rule="evenodd" />
+              </svg>
             </button>
-            <div x-cloak x-show="orderRecordOpen" x-transition.opacity class="absolute z-50 mt-2 w-full bg-gray-800 border border-gray-700 rounded-md shadow-xl" @click.outside="closeOrderRecordSelect">
+            <div x-cloak x-show="orderRecordOpen" x-transition.opacity
+              class="absolute z-50 mt-2 w-full bg-gray-800 border border-gray-700 rounded-md shadow-xl"
+              @click.outside="closeOrderRecordSelect">
               <div class="p-2 w-full">
-                <input type="text" class="block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100" placeholder="Search records..." x-model="orderRecordSearch" @input="onOrderRecordSearchInput">
+                <input type="text"
+                  class="block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100"
+                  placeholder="Search records..." x-model="orderRecordSearch" @input="onOrderRecordSearchInput">
               </div>
               <div class="max-h-64 overflow-auto" @scroll.passive="onOrderRecordScroll">
                 <template x-for="r in orderRecordOptions" :key="r.id">
-                  <div class="px-3 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between" @click="selectOrderRecord(r)">
+                  <div class="px-3 py-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between"
+                    @click="selectOrderRecord(r)">
                     <span x-text="r.artist + ' - ' + r.album"></span>
-                    <span class="text-xs text-gray-400" x-text="(r.format || '') + ' • ' + (r.qty ?? 0) + ' available'"></span>
+                    <span class="text-xs text-gray-400"
+                      x-text="(r.format || '') + ' • ' + (r.qty ?? 0) + ' available'"></span>
                   </div>
                 </template>
                 <div class="px-3 py-2 text-sm text-gray-400" x-show="orderRecordLoading">Loading...</div>
-                <div class="px-3 py-2 text-sm text-gray-400" x-show="!orderRecordLoading && orderRecordOptions.length===0">No results</div>
+                <div class="px-3 py-2 text-sm text-gray-400"
+                  x-show="!orderRecordLoading && orderRecordOptions.length===0">No results</div>
               </div>
             </div>
           </div>
@@ -254,23 +412,36 @@
           <div class="bg-gray-900 border border-gray-700 rounded-md p-4">
             <div class="text-sm text-gray-400 mb-2">Selected</div>
             <div x-show="orderRecordSelected" class="mb-4">
-              <div class="font-medium" x-text="orderRecordSelected ? (orderRecordSelected.artist + ' - ' + orderRecordSelected.album) : ''"></div>
-              <div class="text-xs text-gray-400" x-text="orderRecordSelected ? (orderRecordSelected.format + (orderRecordSelected.price ? (' • $' + orderRecordSelected.price) : '')) : ''"></div>
-              <div class="text-xs text-gray-400" x-show="orderRecordSelected" x-text="'Available: ' + (orderRecordSelected ? (orderRecordSelected.qty ?? 0) : 0)"></div>
+              <div class="font-medium"
+                x-text="orderRecordSelected ? (orderRecordSelected.artist + ' - ' + orderRecordSelected.album) : ''">
+              </div>
+              <div class="text-xs text-gray-400"
+                x-text="orderRecordSelected ? (orderRecordSelected.format + (orderRecordSelected.price ? (' • $' + orderRecordSelected.price) : '')) : ''">
+              </div>
+              <div class="text-xs text-gray-400" x-show="orderRecordSelected"
+                x-text="'Available: ' + (orderRecordSelected ? (orderRecordSelected.qty ?? 0) : 0)"></div>
             </div>
             <label class="block text-sm font-medium">Quantity
-              <input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="order.quantity" min="1" :max="orderRecordSelected ? orderRecordSelected.qty : null" @input="onOrderQuantityInput">
+              <input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+                type="number" x-model.number="order.quantity" min="1"
+                :max="orderRecordSelected ? orderRecordSelected.qty : null" @input="onOrderQuantityInput">
             </label>
             <div class="flex items-center justify-end gap-3 mt-4">
-              <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!order.recordId || !order.quantity" @click="createOrder">Create Order</button>
+              <button
+                class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="!order.recordId || !order.quantity" @click="createOrder">Create Order</button>
             </div>
-            <div class="mt-2 text-sm" :class="orderStatus.includes('Order created') ? 'text-green-400' : (orderStatus ? 'text-red-400' : 'text-gray-400')" x-text="orderStatus || ''"></div>
+            <div class="mt-2 text-sm"
+              :class="orderStatus.includes('Order created') ? 'text-green-400' : (orderStatus ? 'text-red-400' : 'text-gray-400')"
+              x-text="orderStatus || ''"></div>
           </div>
         </div>
       </div>
       <div class="mt-8">
         <h3 class="text-lg font-semibold mb-2">Recent Orders</h3>
-        <div class="text-sm text-gray-400 mb-2" role="status" aria-live="polite" x-text="orderListLoading ? 'Loading orders...' : ('Page ' + ordersPage + ' of ' + ordersTotalPages + ' • ' + orders.length + ' items loaded')"></div>
+        <div class="text-sm text-gray-400 mb-2" role="status" aria-live="polite"
+          x-text="orderListLoading ? 'Loading orders...' : ('Page ' + ordersPage + ' of ' + ordersTotalPages + ' • ' + orders.length + ' items loaded')">
+        </div>
         <div class="sm:hidden space-y-3">
           <template x-for="o in orders" :key="o.id">
             <div class="rounded-lg border border-gray-700 bg-gray-900 p-3">
@@ -285,39 +456,52 @@
           </template>
         </div>
         <div class="overflow-x-auto -mx-4 sm:mx-0">
-        <table class="hidden sm:table min-w-full text-sm border border-gray-700 rounded-lg overflow-hidden bg-gray-900">
-          <caption class="sr-only">Recent orders</caption>
-          <thead>
-            <tr>
-              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Record</th>
-              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th>
-              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Unit</th>
-              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Total</th>
-              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template x-for="o in orders" :key="o.id">
+          <table
+            class="hidden sm:table min-w-full text-sm border border-gray-700 rounded-lg overflow-hidden bg-gray-900">
+            <caption class="sr-only">Recent orders</caption>
+            <thead>
               <tr>
-                <td class="border-t border-gray-700 px-3 py-2" x-text="o.recordTitle || o.recordId || 'Unknown Record'"></td>
-                <td class="border-t border-gray-700 px-3 py-2" x-text="o.quantity"></td>
-                <td class="border-t border-gray-700 px-3 py-2 hidden sm:table-cell" x-text="'$' + Number(o.unitPrice).toFixed(2)"></td>
-                <td class="border-t border-gray-700 px-3 py-2" x-text="'$' + Number(o.totalPrice).toFixed(2)"></td>
-                <td class="border-t border-gray-700 px-3 py-2 hidden sm:table-cell" x-text="new Date(o.created||Date.now()).toLocaleString()"></td>
+                <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Record</th>
+                <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th>
+                <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">
+                  Unit</th>
+                <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Total</th>
+                <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">
+                  Created</th>
               </tr>
-            </template>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <template x-for="o in orders" :key="o.id">
+                <tr>
+                  <td class="border-t border-gray-700 px-3 py-2"
+                    x-text="o.recordTitle || o.recordId || 'Unknown Record'"></td>
+                  <td class="border-t border-gray-700 px-3 py-2" x-text="o.quantity"></td>
+                  <td class="border-t border-gray-700 px-3 py-2 hidden sm:table-cell"
+                    x-text="'$' + Number(o.unitPrice).toFixed(2)"></td>
+                  <td class="border-t border-gray-700 px-3 py-2" x-text="'$' + Number(o.totalPrice).toFixed(2)"></td>
+                  <td class="border-t border-gray-700 px-3 py-2 hidden sm:table-cell"
+                    x-text="new Date(o.created||Date.now()).toLocaleString()"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
         </div>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-3">
           <div class="flex flex-row items-center gap-2 sm:gap-3 justify-center sm:justify-start">
-            <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="ordersPage<=1 || orderListLoading" @click="ordersPrevPage">Prev</button>
-            <div class="text-gray-300 text-sm">Page <span x-text="ordersPage"></span> / <span x-text="ordersTotalPages"></span></div>
-            <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="ordersPage>=ordersTotalPages || orderListLoading" @click="ordersNextPage">Next</button>
+            <button
+              class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="ordersPage<=1 || orderListLoading" @click="ordersPrevPage">Prev</button>
+            <div class="text-gray-300 text-sm">Page <span x-text="ordersPage"></span> / <span
+                x-text="ordersTotalPages"></span></div>
+            <button
+              class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="ordersPage>=ordersTotalPages || orderListLoading" @click="ordersNextPage">Next</button>
           </div>
           <div class="flex flex-col sm:flex-row items-center gap-2 sm:justify-end">
             <label class="text-sm text-gray-300" for="ordersPerPageSelect">Per page</label>
-            <select id="ordersPerPageSelect" class="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100" x-model.number="ordersPerPage" @change="ordersPage=1; loadOrders()">
+            <select id="ordersPerPageSelect"
+              class="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100"
+              x-model.number="ordersPerPage" @change="ordersPage=1; loadOrders()">
               <option :value="10">10</option>
               <option :value="20">20</option>
               <option :value="50">50</option>
@@ -329,16 +513,30 @@
       </div>
     </section>
 
-    <div x-cloak x-show="showEditModal" x-transition.opacity @keydown.escape.window="showEditModal=false" class="fixed inset-0 bg-black/50 flex items-stretch sm:items-center justify-center z-50" @click="showEditModal=false">
-      <div class="bg-gray-800 border border-gray-700 text-gray-100 w-full h-full max-w-none rounded-none p-4 sm:h-auto sm:max-w-lg sm:rounded-lg sm:p-6 shadow-xl overflow-y-auto" x-transition.scale @click.stop>
+    <div x-cloak x-show="showEditModal" x-transition.opacity @keydown.escape.window="showEditModal=false"
+      class="fixed inset-0 bg-black/50 flex items-stretch sm:items-center justify-center z-50"
+      @click="showEditModal=false">
+      <div
+        class="bg-gray-800 border border-gray-700 text-gray-100 w-full h-full max-w-none rounded-none p-4 sm:h-auto sm:max-w-lg sm:rounded-lg sm:p-6 shadow-xl overflow-y-auto"
+        x-transition.scale @click.stop>
         <h3>Edit Record</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-          <label class="block text-sm font-medium md:col-span-1">Artist<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.artist" @input="debouncedLookup('edit')"></label>
-          <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.album" @input="debouncedLookup('edit')"></label>
-          <label class="block text-sm font-medium md:col-span-1">Price<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.price"></label>
-          <label class="block text-sm font-medium md:col-span-1">Quantity<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.qty"></label>
+          <label class="block text-sm font-medium md:col-span-1">Artist<input
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              type="text" x-model="er.artist" @input="debouncedLookup('edit')"></label>
+          <label class="block text-sm font-medium md:col-span-1">Album<input
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              type="text" x-model="er.album" @input="debouncedLookup('edit')"></label>
+          <label class="block text-sm font-medium md:col-span-1">Price<input
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              type="number" x-model.number="er.price"></label>
+          <label class="block text-sm font-medium md:col-span-1">Quantity<input
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              type="number" x-model.number="er.qty"></label>
           <label class="block text-sm font-medium md:col-span-1" for="editFormat">Format
-            <select id="editFormat" class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.format">
+            <select id="editFormat"
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              x-model="er.format">
               <option>Vinyl</option>
               <option>CD</option>
               <option>Cassette</option>
@@ -346,7 +544,9 @@
             </select>
           </label>
           <label class="block text-sm font-medium md:col-span-1" for="editCategory">Category
-            <select id="editCategory" class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.category">
+            <select id="editCategory"
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              x-model="er.category">
               <option>Rock</option>
               <option>Jazz</option>
               <option>Hip-Hop</option>
@@ -358,14 +558,20 @@
           </label>
           <label class="block text-sm font-medium md:col-span-2">MBID
             <div class="mt-1 flex gap-2 items-center">
-              <input class="flex-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.mbid">
-              <button type="button" class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100" @click="debouncedLookup('edit')">Find MBID</button>
+              <input
+                class="flex-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+                type="text" x-model="er.mbid">
+              <button type="button" class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100"
+                @click="debouncedLookup('edit')">Find MBID</button>
               <template x-if="mbidLookupLoadingEdit">
                 <span class="text-gray-400 text-xs">Searching...</span>
               </template>
               <template x-if="!mbidLookupLoadingEdit && er.mbid">
                 <span class="text-green-400 inline-flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
                 </span>
               </template>
               <template x-if="!mbidLookupLoadingEdit && !er.mbid && updateStatus==='MBID not found'">
@@ -375,22 +581,38 @@
           </label>
         </div>
         <div class="flex items-center justify-end gap-3 mt-6">
-          <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded" @click="showEditModal=false">Cancel</button>
-          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" :disabled="!er.id" @click="updateRecord">Update</button>
+          <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded"
+            @click="showEditModal=false">Cancel</button>
+          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            :disabled="!er.id" @click="updateRecord">Update</button>
         </div>
       </div>
     </div>
 
-    <div x-cloak x-show="showCreateModal" x-transition.opacity @keydown.escape.window="showCreateModal=false" class="fixed inset-0 bg-black/50 flex items-stretch sm:items-center justify-center z-50" @click="showCreateModal=false">
-      <div class="bg-gray-800 border border-gray-700 text-gray-100 w-full h-full max-w-none rounded-none p-4 sm:h-auto sm:max-w-lg sm:rounded-lg sm:p-6 shadow-xl overflow-y-auto" x-transition.scale @click.stop>
+    <div x-cloak x-show="showCreateModal" x-transition.opacity @keydown.escape.window="showCreateModal=false"
+      class="fixed inset-0 bg-black/50 flex items-stretch sm:items-center justify-center z-50"
+      @click="showCreateModal=false">
+      <div
+        class="bg-gray-800 border border-gray-700 text-gray-100 w-full h-full max-w-none rounded-none p-4 sm:h-auto sm:max-w-lg sm:rounded-lg sm:p-6 shadow-xl overflow-y-auto"
+        x-transition.scale @click.stop>
         <h3>New Record</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-          <label class="block text-sm font-medium md:col-span-1">Artist<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.artist" @input="debouncedLookup('create')"></label>
-          <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.album" @input="debouncedLookup('create')"></label>
-          <label class="block text-sm font-medium md:col-span-1">Price<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.price"></label>
-          <label class="block text-sm font-medium md:col-span-1">Quantity<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.qty"></label>
+          <label class="block text-sm font-medium md:col-span-1">Artist<input
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              type="text" x-model="cr.artist" @input="debouncedLookup('create')"></label>
+          <label class="block text-sm font-medium md:col-span-1">Album<input
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              type="text" x-model="cr.album" @input="debouncedLookup('create')"></label>
+          <label class="block text-sm font-medium md:col-span-1">Price<input
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              type="number" x-model.number="cr.price"></label>
+          <label class="block text-sm font-medium md:col-span-1">Quantity<input
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              type="number" x-model.number="cr.qty"></label>
           <label class="block text-sm font-medium md:col-span-1" for="createFormat">Format
-            <select id="createFormat" class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.format">
+            <select id="createFormat"
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              x-model="cr.format">
               <option>Vinyl</option>
               <option>CD</option>
               <option>Cassette</option>
@@ -398,7 +620,9 @@
             </select>
           </label>
           <label class="block text-sm font-medium md:col-span-1" for="createCategory">Category
-            <select id="createCategory" class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.category">
+            <select id="createCategory"
+              class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+              x-model="cr.category">
               <option>Rock</option>
               <option>Jazz</option>
               <option>Hip-Hop</option>
@@ -410,14 +634,20 @@
           </label>
           <label class="block text-sm font-medium md:col-span-2">MBID
             <div class="mt-1 flex gap-2 items-center">
-              <input class="flex-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.mbid">
-              <button type="button" class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100" @click="debouncedLookup('create')">Find MBID</button>
+              <input
+                class="flex-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100"
+                type="text" x-model="cr.mbid">
+              <button type="button" class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100"
+                @click="debouncedLookup('create')">Find MBID</button>
               <template x-if="mbidLookupLoadingCreate">
                 <span class="text-gray-400 text-xs">Searching...</span>
               </template>
               <template x-if="!mbidLookupLoadingCreate && cr.mbid">
                 <span class="text-green-400 inline-flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
                 </span>
               </template>
               <template x-if="!mbidLookupLoadingCreate && !cr.mbid && createStatus==='MBID not found'">
@@ -427,21 +657,27 @@
           </label>
         </div>
         <div class="flex items-center justify-end gap-3 mt-6">
-          <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded" @click="showCreateModal=false">Cancel</button>
-          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" @click="createRecord">Create</button>
+          <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded"
+            @click="showCreateModal=false">Cancel</button>
+          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            @click="createRecord">Create</button>
         </div>
       </div>
     </div>
     <div x-cloak x-show="showTrackSlider" @keydown.escape.window="showTrackSlider=false" class="fixed inset-0 z-50">
       <div class="absolute inset-0 bg-black/50" @click="showTrackSlider=false"></div>
-      <div class="absolute right-0 top-0 h-full w-full max-w-md bg-gray-800 border-l border-gray-700 shadow-xl flex flex-col transition-transform duration-300" :class="showTrackSlider ? 'translate-x-0' : 'translate-x-full'">
+      <div
+        class="absolute right-0 top-0 h-full w-full max-w-md bg-gray-800 border-l border-gray-700 shadow-xl flex flex-col transition-transform duration-300"
+        :class="showTrackSlider ? 'translate-x-0' : 'translate-x-full'">
         <div class="p-4 border-b border-gray-700 flex items-center justify-between">
-          <div class="font-bold" x-text="selectedTrackRecord ? (selectedTrackRecord.artist + ' - ' + selectedTrackRecord.album) : ''"></div>
+          <div class="font-bold"
+            x-text="selectedTrackRecord ? (selectedTrackRecord.artist + ' - ' + selectedTrackRecord.album) : ''"></div>
           <button class="text-gray-300 hover:text-gray-100" @click="showTrackSlider=false">Close</button>
         </div>
         <div class="p-4 overflow-y-auto">
           <div class="font-bold text-lg mb-2">Tracklist</div>
-          <template x-if="selectedTrackRecord && Array.isArray(selectedTrackRecord.tracklist) && selectedTrackRecord.tracklist.length">
+          <template
+            x-if="selectedTrackRecord && Array.isArray(selectedTrackRecord.tracklist) && selectedTrackRecord.tracklist.length">
             <div>
               <template x-for="t in selectedTrackRecord.tracklist" :key="t.title || t">
                 <div class="flex justify-between border-b border-gray-700 last:border-b-0 py-1">
@@ -451,7 +687,8 @@
               </template>
             </div>
           </template>
-          <template x-if="!selectedTrackRecord || !selectedTrackRecord.tracklist || !selectedTrackRecord.tracklist.length">
+          <template
+            x-if="!selectedTrackRecord || !selectedTrackRecord.tracklist || !selectedTrackRecord.tracklist.length">
             <div class="text-gray-400 text-sm">No tracks available</div>
           </template>
         </div>
@@ -460,8 +697,8 @@
   </div>
 
   <script>
-    function admin(){
-        return {
+    function admin() {
+      return {
         page: (typeof localStorage !== 'undefined' && localStorage.getItem('adminPage')) || 'dashboard',
         showEditModal: false,
         showCreateModal: false,
@@ -501,16 +738,16 @@
         mbidLookupLoadingCreate: false,
         mbidLookupLoadingEdit: false,
         orderListLoading: false,
-        async load(){
-          try{
+        async load() {
+          try {
             this.loading = true;
             const params = new URLSearchParams();
             params.set('page', String(this.currentPage));
             params.set('pageSize', String(this.perPage));
             params.set('sort', this.sortParam || 'created');
-            if(this.search) params.set('q', this.search);
-            if(this.formatFilter) params.set('format', this.formatFilter);
-            if(this.categoryFilter) params.set('category', this.categoryFilter);
+            if (this.search) params.set('q', this.search);
+            if (this.formatFilter) params.set('format', this.formatFilter);
+            if (this.categoryFilter) params.set('category', this.categoryFilter);
             const r = await fetch('/records?' + params.toString());
             const json = await r.json();
             this.records = json.data || [];
@@ -519,21 +756,21 @@
             this.currentPage = Number(json.page || this.currentPage);
             this.totalPages = Math.max(1, Math.ceil(this.total / this.perPage));
             this.lastLoaded = new Date().toLocaleString();
-          }finally{
+          } finally {
             this.loading = false;
           }
         },
-        init(){
+        init() {
           const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('adminPage') : null;
-          if(saved){ this.page = saved; }
-          if(this.page === 'records' || this.page === 'dashboard'){ this.load(); }
-          if(this.page === 'orders'){ this.loadOrders(); }
+          if (saved) { this.page = saved; }
+          if (this.page === 'records' || this.page === 'dashboard') { this.load(); }
+          if (this.page === 'orders') { this.loadOrders(); }
         },
-        setPage(p){ this.page = p; if(typeof localStorage !== 'undefined'){ localStorage.setItem('adminPage', p); } if(p === 'records' || p === 'dashboard'){ this.load(); } if(p === 'orders'){ this.ordersPage = 1; this.loadOrders(); } },
-        ordersNextPage(){ if(this.ordersPage < this.ordersTotalPages){ this.ordersPage++; this.loadOrders(); } },
-        ordersPrevPage(){ if(this.ordersPage > 1){ this.ordersPage--; this.loadOrders(); } },
-        async loadOrders(){
-          try{
+        setPage(p) { this.page = p; if (typeof localStorage !== 'undefined') { localStorage.setItem('adminPage', p); } if (p === 'records' || p === 'dashboard') { this.load(); } if (p === 'orders') { this.ordersPage = 1; this.loadOrders(); } },
+        ordersNextPage() { if (this.ordersPage < this.ordersTotalPages) { this.ordersPage++; this.loadOrders(); } },
+        ordersPrevPage() { if (this.ordersPage > 1) { this.ordersPage--; this.loadOrders(); } },
+        async loadOrders() {
+          try {
             this.orderListLoading = true;
             const params = new URLSearchParams();
             params.set('page', String(this.ordersPage));
@@ -544,31 +781,31 @@
             this.ordersTotal = Number(json.total || 0);
             this.ordersPerPage = Number(json.perPage || this.ordersPerPage);
             this.ordersTotalPages = Math.max(1, Math.ceil(this.ordersTotal / this.ordersPerPage));
-          }finally{
+          } finally {
             this.orderListLoading = false;
           }
         },
-        openCreateModal(){ this.resetCreate(); this.showCreateModal = true; },
-        resetCreate(){ this.cr = { artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' }; this.createStatus = ''; },
-        nextPage(){ if(this.currentPage < this.totalPages){ this.currentPage++; this.load(); } },
-        prevPage(){ if(this.currentPage > 1){ this.currentPage--; this.load(); } },
-        applyFilters(){ this.load(); },
-        toggleExpand(id){
+        openCreateModal() { this.resetCreate(); this.showCreateModal = true; },
+        resetCreate() { this.cr = { artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' }; this.createStatus = ''; },
+        nextPage() { if (this.currentPage < this.totalPages) { this.currentPage++; this.load(); } },
+        prevPage() { if (this.currentPage > 1) { this.currentPage--; this.load(); } },
+        applyFilters() { this.load(); },
+        toggleExpand(id) {
           const next = !this.expanded[id];
           this.expanded = Object.assign({}, this.expanded, { [id]: next });
         },
-        openTrackSlider(r){ this.selectedTrackRecord = r; this.showTrackSlider = true; },
-        openOrderRecordSelect(){ this.orderRecordOpen = true; this.orderRecordOptions = []; this.orderRecordPage = 1; this.orderRecordTotalPages = 1; this.loadOrderRecords(); },
-        closeOrderRecordSelect(){ this.orderRecordOpen = false; },
-        async loadOrderRecords(){
-          if(this.orderRecordLoading) return;
-          if(this.orderRecordPage > this.orderRecordTotalPages) return;
+        openTrackSlider(r) { this.selectedTrackRecord = r; this.showTrackSlider = true; },
+        openOrderRecordSelect() { this.orderRecordOpen = true; this.orderRecordOptions = []; this.orderRecordPage = 1; this.orderRecordTotalPages = 1; this.loadOrderRecords(); },
+        closeOrderRecordSelect() { this.orderRecordOpen = false; },
+        async loadOrderRecords() {
+          if (this.orderRecordLoading) return;
+          if (this.orderRecordPage > this.orderRecordTotalPages) return;
           this.orderRecordLoading = true;
           const params = new URLSearchParams();
           params.set('page', String(this.orderRecordPage));
           params.set('pageSize', '20');
           const q = (this.orderRecordSearch || '').trim();
-          if(q) params.set('q', q);
+          if (q) params.set('q', q);
           const r = await fetch('/records?' + params.toString());
           const json = await r.json();
           const items = Array.isArray(json.data) ? json.data : [];
@@ -579,77 +816,102 @@
           this.orderRecordPage++;
           this.orderRecordLoading = false;
         },
-        onOrderRecordScroll(e){ const el = e.target; if(el.scrollTop + el.clientHeight >= el.scrollHeight - 32){ this.loadOrderRecords(); } },
-        selectOrderRecord(r){ this.order.recordId = r.id; this.orderRecordSelected = r; this.orderRecordOpen = false; },
-        onOrderRecordSearchInput(){ if(this.orderRecordSearchTimer){ clearTimeout(this.orderRecordSearchTimer); } this.orderRecordSearchTimer = setTimeout(() => { this.orderRecordOptions = []; this.orderRecordPage = 1; this.orderRecordTotalPages = 1; this.loadOrderRecords(); }, 200); },
-        onOrderQuantityInput(){ const max = this.orderRecordSelected ? Number(this.orderRecordSelected.qty||0) : Infinity; const q = Number(this.order.quantity||0); this.order.quantity = Math.max(1, Math.min(q, isFinite(max) ? max : q)); },
-        selectRecord(r){
-          const id = r.id ;
-          this.er = { id, artist: r.artist||'', album: r.album||'', price: r.price||'', qty: r.qty||'', format: r.format||'Vinyl', category: r.category||'Rock', mbid: r.mbid||'' };
+        onOrderRecordScroll(e) { const el = e.target; if (el.scrollTop + el.clientHeight >= el.scrollHeight - 32) { this.loadOrderRecords(); } },
+        selectOrderRecord(r) { this.order.recordId = r.id; this.orderRecordSelected = r; this.orderRecordOpen = false; },
+        onOrderRecordSearchInput() { if (this.orderRecordSearchTimer) { clearTimeout(this.orderRecordSearchTimer); } this.orderRecordSearchTimer = setTimeout(() => { this.orderRecordOptions = []; this.orderRecordPage = 1; this.orderRecordTotalPages = 1; this.loadOrderRecords(); }, 200); },
+        onOrderQuantityInput() { const max = this.orderRecordSelected ? Number(this.orderRecordSelected.qty || 0) : Infinity; const q = Number(this.order.quantity || 0); this.order.quantity = Math.max(1, Math.min(q, isFinite(max) ? max : q)); },
+        selectRecord(r) {
+          const id = r.id;
+          this.er = { id, artist: r.artist || '', album: r.album || '', price: r.price || '', qty: r.qty || '', format: r.format || 'Vinyl', category: r.category || 'Rock', mbid: r.mbid || '' };
           this.showEditModal = true;
         },
-        async createRecord(){
-          try{
+        async createRecord() {
+          try {
             this.createStatus = 'Creating...';
             const res = await fetch('/records', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artist: this.cr.artist, album: this.cr.album, price: Number(this.cr.price), qty: Number(this.cr.qty), format: this.cr.format, category: this.cr.category, mbid: this.cr.mbid || undefined }) });
-            if(!res.ok){ throw new Error('Failed to create record'); }
+            if (!res.ok) { throw new Error('Failed to create record'); }
             this.createStatus = 'Created';
             await this.load();
             this.showCreateModal = false;
-          }catch(e){ this.createStatus = e.message; }
+          } catch (e) { this.createStatus = e.message; }
         },
-        async updateRecord(){
-          try{
+        async updateRecord() {
+          try {
             this.updateStatus = 'Updating...';
             const id = this.er.id;
             const payload = { artist: this.er.artist || undefined, album: this.er.album || undefined, price: Number(this.er.price), qty: Number(this.er.qty), format: this.er.format || undefined, category: this.er.category || undefined, mbid: this.er.mbid || undefined };
             const res = await fetch('/records/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            if(!res.ok){ throw new Error('Failed to update record'); }
+            if (!res.ok) { throw new Error('Failed to update record'); }
             this.updateStatus = 'Updated';
             await this.load();
             this.showEditModal = false;
-          }catch(e){ this.updateStatus = e.message; }
+          } catch (e) { this.updateStatus = e.message; }
         },
-        async createOrder(){
-          try{
+        async createOrder() {
+          try {
             this.orderStatus = 'Creating...';
             const res = await fetch('/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recordId: this.order.recordId, quantity: Number(this.order.quantity) }) });
-            if(!res.ok){ throw new Error('Failed to create order'); }
+            if (!res.ok) { throw new Error('Failed to create order'); }
             this.orderStatus = 'Order created';
-            const placedQty = Number(this.order.quantity)||0;
-            if(this.orderRecordSelected){
-              const nextQty = Math.max(0, Number(this.orderRecordSelected.qty||0) - placedQty);
+            const placedQty = Number(this.order.quantity) || 0;
+            if (this.orderRecordSelected) {
+              const nextQty = Math.max(0, Number(this.orderRecordSelected.qty || 0) - placedQty);
               this.orderRecordSelected = Object.assign({}, this.orderRecordSelected, { qty: nextQty });
               const idx = this.orderRecordOptions.findIndex((x) => x.id === this.orderRecordSelected.id);
-              if(idx >= 0){
+              if (idx >= 0) {
                 const cur = this.orderRecordOptions[idx];
                 this.orderRecordOptions.splice(idx, 1, Object.assign({}, cur, { qty: nextQty }));
               }
             }
             this.order.quantity = '';
             await this.loadOrders();
-          }catch(e){ this.orderStatus = e.message; }
+          } catch (e) { this.orderStatus = e.message; }
         },
         lookupMbidTimer: null,
-        debouncedLookup(target){ if(this.lookupMbidTimer){ clearTimeout(this.lookupMbidTimer); } this.lookupMbidTimer = setTimeout(()=> this.lookupMbid(target), 500); },
-        async lookupMbid(target){
+        debouncedLookup(target) { if (this.lookupMbidTimer) { clearTimeout(this.lookupMbidTimer); } this.lookupMbidTimer = setTimeout(() => this.lookupMbid(target), 500); },
+        async lookupMbid(target) {
           const isCreate = target === 'create';
           const artist = (isCreate ? this.cr.artist : this.er.artist || '').trim();
           const album = (isCreate ? this.cr.album : this.er.album || '').trim();
-          if(!artist || !album) return;
-          try{
-            if(isCreate){ this.mbidLookupLoadingCreate = true; this.createStatus = 'Searching MBID...'; }
+          if (!artist || !album) return;
+          try {
+            if (isCreate) { this.mbidLookupLoadingCreate = true; this.createStatus = 'Searching MBID...'; }
             else { this.mbidLookupLoadingEdit = true; this.updateStatus = 'Searching MBID...'; }
-            const res = await fetch('/records/mbid/search', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ artist, album }) });
+            const res = await fetch('/records/mbid/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artist, album }) });
             const json = await res.json();
             const found = json?.mbid || '';
-            if(isCreate){ this.cr.mbid = found; this.createStatus = found ? '' : 'MBID not found'; }
+            if (isCreate) { this.cr.mbid = found; this.createStatus = found ? '' : 'MBID not found'; }
             else { this.er.mbid = found; this.updateStatus = found ? '' : 'MBID not found'; }
-          }catch(e){ if(isCreate){ this.createStatus = 'MBID search failed'; } else { this.updateStatus = 'MBID search failed'; } }
-          finally{ if(isCreate){ this.mbidLookupLoadingCreate = false; } else { this.mbidLookupLoadingEdit = false; } }
+          } catch (e) { if (isCreate) { this.createStatus = 'MBID search failed'; } else { this.updateStatus = 'MBID search failed'; } }
+          finally { if (isCreate) { this.mbidLookupLoadingCreate = false; } else { this.mbidLookupLoadingEdit = false; } }
         }
       }
     }
   </script>
+  <script src="https://browser.sentry-cdn.com/10.25.0/bundle.tracing.min.js"
+    integrity="sha384-ZnNH0KFLL1qhpW7xlNYoeY2bdcreONValnCXb3f5fOQTkvw9FEJcY9sCNSdX8VWu"
+    crossorigin="anonymous"></script>
+  <script>
+    Sentry.init({
+      dsn: "https://58a69b7a809e3ca90800406311051fcb@o4510375818887168.ingest.de.sentry.io/4510375821508688",
+      sendDefaultPii: true,
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration(),
+        Sentry.feedbackIntegration({
+          colorScheme: "system",
+        }),
+      ],
+      enableLogs: true,
+      tracesSampleRate: 1.0,
+      tracePropagationTargets: ["localhost", "https://brokenrecordstore.onrender.com/api"],
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+    });
+
+    Sentry.metrics.count("button_click", 1);
+    Sentry.metrics.gauge("queue_depth", 42);
+  </script>
 </body>
+
 </html>
