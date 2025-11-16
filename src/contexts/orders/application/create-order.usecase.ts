@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import * as Sentry from '@sentry/nestjs';
 import { OrderModel } from '../domain/models/order.model';
 import {
   ORDERS_REPOSITORY,
   OrdersRepository,
 } from '../domain/repositories/orders.repository';
 import { CreateOrderInput } from './inputs/create-order.input';
-import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class CreateOrderUseCase {
@@ -21,7 +21,7 @@ export class CreateOrderUseCase {
       { name: 'CreateOrderUseCase#execute', op: 'usecase' },
       async () => {
         const order = await this.repo.create(dto);
-        this.events.emit('cache.invalidate', 'record:list');
+        this.events.emit('cache.invalidate', '/records');
         return order;
       },
     );

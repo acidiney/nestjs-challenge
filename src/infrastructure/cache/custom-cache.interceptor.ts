@@ -19,23 +19,28 @@ export class CustomCacheInterceptor extends CacheInterceptor {
     if (!this.isRequestCacheable(context)) {
       return next.handle();
     }
+
     const key = this.trackBy(context);
     if (!key) {
       return next.handle();
     }
+
     const res = context.switchToHttp().getResponse();
     try {
-      const cached = await (this.cacheManager as any).get(key);
+      const cached = await this.cacheManager.get(key);
+
       if (cached !== undefined) {
         if (res?.setHeader) res.setHeader('X-Cache', 'HIT');
         return of(cached);
       }
     } catch {}
+
     if (res?.setHeader) res.setHeader('X-Cache', 'MISS');
+
     return next.handle().pipe(
       tap(async (response) => {
         try {
-          await (this.cacheManager as any).set(key, response);
+          await this.cacheManager.set(key, response);
         } catch {}
       }),
     );

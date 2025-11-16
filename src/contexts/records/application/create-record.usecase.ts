@@ -1,5 +1,6 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import * as Sentry from '@sentry/nestjs';
 import {
   RECORDS_READ_REPOSITORY,
   RecordsReadRepository,
@@ -15,7 +16,6 @@ import {
   MUSIC_METADATA_SERVICE,
   MusicMetadataService,
 } from './services/music-metadata.service';
-import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class CreateRecordUseCase {
@@ -50,7 +50,7 @@ export class CreateRecordUseCase {
         }
 
         const created = await this.repo.create({ ...dto, tracklist });
-        this.events.emit('cache.invalidate', 'record:list');
+        this.events.emit('cache.invalidate', '/records');
         return RecordOutput.fromModel(created);
       },
     );

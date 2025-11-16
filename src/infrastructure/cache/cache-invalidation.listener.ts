@@ -8,8 +8,24 @@ export class CacheInvalidationListener {
   constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {}
 
   @OnEvent('cache.invalidate', { async: true })
-  async onRecordsChanged(): Promise<void> {
-    // TODO: could be improved to invalidate only the keys that match the prefix
-    await this.cache.clear();
+  async onRecordsChanged(pattern: string): Promise<void> {
+    const keys = await this.getKeys();
+
+    const matchedKeys = keys.filter((key) => key.startsWith(pattern));
+
+    await this.cache.mdel(matchedKeys);
+  }
+
+  async getKeys() {
+    const storeIterator = this.cache.stores[0]?.iterator;
+
+    const keys: string[] = [];
+    if (storeIterator) {
+      for await (const [key] of storeIterator('namespace')) {
+        keys.push(key);
+      }
+    }
+
+    return keys;
   }
 }

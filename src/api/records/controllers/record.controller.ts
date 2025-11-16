@@ -32,8 +32,8 @@ import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum
 import { ListRecordsQuery } from '@/contexts/records/domain/queries/list-records.query';
 import { RecordSortParam } from '@/contexts/records/domain/queries/sort.types';
 import { CustomCacheInterceptor } from '@/infrastructure/cache/custom-cache.interceptor';
-import { LookupMbidRequestDTO } from '../dtos/lookup-mbid.request.dto';
 import * as Sentry from '@sentry/nestjs';
+import { LookupMbidRequestDTO } from '../dtos/lookup-mbid.request.dto';
 
 @Controller('records')
 export class RecordController {
