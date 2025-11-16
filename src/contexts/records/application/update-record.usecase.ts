@@ -41,7 +41,7 @@ export class UpdateRecordUseCase {
     let tracklist = record.tracklist;
 
     if (dto.mbid && !dto.mbid?.equals(record.mbid)) {
-      tracklist = await this.metadata.fetchTracklistByMbid(dto.mbid);
+      tracklist = await this.metadata.fetchTrackInfosByMbid(dto.mbid);
     }
 
     const updatedDto = Object.assign(record, dto, {

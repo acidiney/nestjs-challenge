@@ -1,4 +1,5 @@
 import { RecordModel } from '../../domain/models/record.model';
+import { Tracklist } from '../../domain/types/tracklist.type';
 
 export class RecordOutput {
   id?: string;
@@ -11,7 +12,7 @@ export class RecordOutput {
   created?: Date;
   lastModified?: Date;
   mbid?: string;
-  tracklist?: string[];
+  tracklist?: Tracklist[];
 
   constructor(props: RecordModel) {
     this.id = props.id;
