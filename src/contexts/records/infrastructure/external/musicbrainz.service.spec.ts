@@ -1,8 +1,13 @@
+import { MbidCacheRepository } from '@/contexts/records/domain/repositories/mbid-cache.repository';
 import { MBID } from '@/contexts/records/domain/value-objects/mbid.vo';
 import { MusicBrainzService } from './musicbrainz.service';
 
 describe('MusicBrainzService', () => {
-  const service = new MusicBrainzService();
+  const cacheRepo: MbidCacheRepository = {
+    findTracklist: jest.fn().mockResolvedValue(null),
+    upsertTracklist: jest.fn().mockResolvedValue(undefined),
+  };
+  const service = new MusicBrainzService(cacheRepo);
 
   beforeEach(() => {
     jest.restoreAllMocks();

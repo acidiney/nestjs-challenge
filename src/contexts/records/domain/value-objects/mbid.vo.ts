@@ -26,6 +26,8 @@ export class MBID {
   }
 
   equals(other: MBID | string): boolean {
+    if (!other) return false;
+
     const otherVal =
       typeof other === 'string' ? other.trim().toLowerCase() : other.raw;
     return this.raw === otherVal;

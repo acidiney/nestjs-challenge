@@ -1,3 +1,8 @@
+import { MUSIC_METADATA_SERVICE } from '@/contexts/records/application/services/music-metadata.service';
+import { MBID_CACHE_REPOSITORY } from '@/contexts/records/domain/repositories/mbid-cache.repository';
+import { MusicBrainzService } from '@/contexts/records/infrastructure/external/musicbrainz.service';
+import { MongoMbidCacheRepository } from '@/contexts/records/infrastructure/persistence/mongoose/repositories/mongo-mbid-cache.repository';
+import { MBIDCacheSchema } from '@/contexts/records/infrastructure/persistence/mongoose/schemas/mbid-cache.schema';
 import {
   RecordDocument,
   RecordSchema,
@@ -13,18 +18,20 @@ import { RECORDS_REPOSITORY } from '../../contexts/records/domain/repositories/r
 import { MongoRecordsReadRepository } from '../../contexts/records/infrastructure/persistence/mongoose/repositories/mongo-records-read.repository';
 import { MongoRecordsRepository } from '../../contexts/records/infrastructure/persistence/mongoose/repositories/mongo-records.repository';
 import { RecordController } from './controllers/record.controller';
-import { MUSIC_METADATA_SERVICE } from '@/contexts/records/application/services/music-metadata.service';
-import { MusicBrainzService } from '@/contexts/records/infrastructure/external/musicbrainz.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Record', schema: RecordSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Record', schema: RecordSchema },
+      { name: 'MBIDCache', schema: MBIDCacheSchema },
+    ]),
   ],
   controllers: [RecordController],
   providers: [
     { provide: RECORDS_READ_REPOSITORY, useClass: MongoRecordsReadRepository },
     { provide: RECORDS_REPOSITORY, useClass: MongoRecordsRepository },
     { provide: MUSIC_METADATA_SERVICE, useClass: MusicBrainzService },
+    { provide: MBID_CACHE_REPOSITORY, useClass: MongoMbidCacheRepository },
     CreateRecordUseCase,
     UpdateRecordUseCase,
     ListRecordsUseCase,

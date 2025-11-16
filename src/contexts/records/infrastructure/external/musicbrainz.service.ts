@@ -1,5 +1,9 @@
 import { MusicMetadataService } from '@/contexts/records/application/services/music-metadata.service';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  MBID_CACHE_REPOSITORY,
+  MbidCacheRepository,
+} from '@/contexts/records/domain/repositories/mbid-cache.repository';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { XMLParser } from 'fast-xml-parser';
 import { MBID } from '../../domain/value-objects/mbid.vo';
 
@@ -12,11 +16,28 @@ export class MusicBrainzService implements MusicMetadataService {
 
   private readonly logger = new Logger(MusicBrainzService.name);
 
+  constructor(
+    @Inject(MBID_CACHE_REPOSITORY)
+    private readonly cacheRepo: MbidCacheRepository,
+  ) {}
+
   async fetchTracklistByMbid(mbid: MBID): Promise<string[]> {
+    const cached = await this.cacheRepo.findTracklist(mbid.toString());
+    if (cached && cached.length) {
+      return cached;
+    }
+
     const url = this.buildReleaseUrl(mbid.toString());
+
     try {
       const xml = await this.fetchXml(url);
-      return this.parseXmlAndExtractTitles(xml);
+      const titles = this.parseXmlAndExtractTitles(xml);
+
+      if (titles.length) {
+        await this.cacheRepo.upsertTracklist(mbid.toString(), titles, 60);
+      }
+
+      return titles;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       this.logger.warn(`MusicBrainz fetch failed for mbid=${mbid}: ${message}`);
