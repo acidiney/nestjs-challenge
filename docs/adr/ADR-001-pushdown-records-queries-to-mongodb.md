@@ -17,9 +17,9 @@ Push query filtering, sorting, and pagination into MongoDB using Mongoose query 
 
 - Replace JS-side filtering in controllers with MongoDB-side queries via Mongoose.
 - Define and use indexes to support search and filtering:
-  - Text index on `title`/`artist`/`album`,
-  - Compound indexes for `genre+price`,
-  - Indexes on `releasedAt` and `availableStock`.
+  - Text index on `artist`/`album`,
+  - Compound indexes for `category+price`,
+  - Indexes on `format` and `price`.
 - Use `lean()` and projections to reduce hydration overhead and payload size.
 - Implement pagination with `skip/limit`.
 - Prefer sorting by indexed fields; for text search, sort by `textScore`.
