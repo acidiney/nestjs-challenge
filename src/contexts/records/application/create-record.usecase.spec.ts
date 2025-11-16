@@ -94,7 +94,7 @@ describe('CreateRecordUseCase', () => {
     const repo = { create: jest.fn().mockResolvedValue(created) };
     const readRepo = { findByUnique: jest.fn().mockResolvedValue(null) };
     const metadata = {
-      fetchTracklistByMbid: jest.fn().mockResolvedValue(['T1', 'T2']),
+      fetchTrackInfosByMbid: jest.fn().mockResolvedValue(['T1', 'T2']),
     };
     const usecase = new CreateRecordUseCase(
       repo as any,
@@ -104,7 +104,7 @@ describe('CreateRecordUseCase', () => {
     const input = makeInput();
 
     const output = await usecase.execute(input);
-    expect(metadata.fetchTracklistByMbid).toHaveBeenCalledWith(input.mbid);
+    expect(metadata.fetchTrackInfosByMbid).toHaveBeenCalledWith(input.mbid);
     expect(repo.create).toHaveBeenCalledWith({
       ...input,
       tracklist: ['T1', 'T2'],

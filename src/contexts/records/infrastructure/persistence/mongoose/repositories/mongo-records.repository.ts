@@ -26,11 +26,19 @@ export class MongoRecordsRepository implements RecordsRepository {
   }
 
   async updateById(id: string, dto: UpdateRecordInput): Promise<void> {
-    const updated = await this.recordModel.updateOne({
-      ...dto,
-      id,
-      mbid: dto.mbid?.toString(),
-    });
+    delete dto['id'];
+    const updated = await this.recordModel.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          ...dto,
+          mbid: dto.mbid?.toString(),
+        },
+      },
+      { upsert: false },
+    );
 
     if (!updated) {
       throw new InternalServerErrorException('Failed to update record');

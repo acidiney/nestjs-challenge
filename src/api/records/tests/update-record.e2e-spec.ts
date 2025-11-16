@@ -6,6 +6,7 @@ import { AppModule } from '@/app.module';
 import { MUSIC_METADATA_SERVICE } from '@/contexts/records/application/services/music-metadata.service';
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
+import { Tracklist } from '@/contexts/records/domain/types/tracklist.type';
 
 describe('RecordController update (e2e)', () => {
   let app: INestApplication;
@@ -69,10 +70,21 @@ describe('RecordController update (e2e)', () => {
       })
         .overrideProvider(MUSIC_METADATA_SERVICE)
         .useValue({
-          fetchTracklistByMbid: async () => [
-            'Refreshed Track 1',
-            'Refreshed Track 2',
-          ],
+          fetchTrackInfosByMbid: async () =>
+            [
+              {
+                title: 'Track 1',
+                length: '3:30',
+                releaseDate: '2023-01-01',
+                hasVideo: false,
+              },
+              {
+                title: 'Track 2',
+                length: '4:00',
+                releaseDate: '2023-01-02',
+                hasVideo: true,
+              },
+            ] as Tracklist[],
         })
         .compile();
 
@@ -118,8 +130,18 @@ describe('RecordController update (e2e)', () => {
       expect(updateRes.body).toHaveProperty('id', recordId);
       expect(Array.isArray(updateRes.body.tracklist)).toBe(true);
       expect(updateRes.body.tracklist).toEqual([
-        'Refreshed Track 1',
-        'Refreshed Track 2',
+        {
+          title: 'Track 1',
+          length: '3:30',
+          releaseDate: '2023-01-01',
+          hasVideo: false,
+        },
+        {
+          title: 'Track 2',
+          length: '4:00',
+          releaseDate: '2023-01-02',
+          hasVideo: true,
+        },
       ]);
       expect(updateRes.body.mbid).toBe(newMbid);
     });
@@ -140,7 +162,7 @@ describe('RecordController update (e2e)', () => {
         .send(createRecordDto)
         .expect(201);
 
-      recordId = createRes.body.id ?? createRes.body._id;
+      recordId = createRes.body.id;
 
       const updateDto = { mbid: 'invalid-mbid-format' } as any;
 
@@ -166,7 +188,7 @@ describe('RecordController update (e2e)', () => {
       .send(createRecordDto)
       .expect(201);
 
-    recordId = createRes.body.id ?? createRes.body._id;
+    recordId = createRes.body.id;
 
     await request(app.getHttpServer())
       .put(`/records/${recordId}`)
@@ -194,7 +216,7 @@ describe('RecordController update (e2e)', () => {
       .send(createRecordDto)
       .expect(201);
 
-    recordId = createRes.body.id ?? createRes.body._id;
+    recordId = createRes.body.id;
 
     await request(app.getHttpServer())
       .put(`/records/${recordId}`)
