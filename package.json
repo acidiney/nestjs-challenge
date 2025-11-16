@@ -20,7 +20,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --detectOpenHandles --forceExit",
-    "setup:db": "ts-node -r tsconfig-paths/register setup-db.ts"
+    "setup:db": "ts-node -r tsconfig-paths/register setup-db.ts",
+    "stress:k6": "docker run --rm -e API_URL=$API_URL -e READ_TOTAL=$READ_TOTAL -e WRITE_TOTAL=$WRITE_TOTAL -e READ_VUS=$READ_VUS -e WRITE_VUS=$WRITE_VUS -e TARGET_RECORD_QTY=$TARGET_RECORD_QTY -e RACE_WRITE_TOTAL=$RACE_WRITE_TOTAL -v $PWD/scripts/k6:/scripts grafana/k6 run /scripts/stress.js"
   },
   "dependencies": {
     "@keyv/valkey": "^1.0.11",
