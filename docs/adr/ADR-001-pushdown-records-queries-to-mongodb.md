@@ -21,7 +21,7 @@ Push query filtering, sorting, and pagination into MongoDB using Mongoose query 
   - Compound indexes for `genre+price`,
   - Indexes on `releasedAt` and `availableStock`.
 - Use `lean()` and projections to reduce hydration overhead and payload size.
-- Implement pagination with `skip/limit` or `cursor`-based strategies.
+- Implement pagination with `skip/limit`.
 - Prefer sorting by indexed fields; for text search, sort by `textScore`.
 - Incrementally refactor to route query logic through a read-side repository (`RecordsReadRepository`) in the infrastructure layer to keep controllers thin and domain/application aligned.
 
