@@ -80,11 +80,13 @@ export class MusicBrainzService implements MusicMetadataService {
 
           const list = obj?.metadata?.['release-list'];
 
-          const releaseRaw = list?.release ?? [];
+          const releasesRaw = list?.release ?? [];
 
-          const releases = Array.isArray(releaseRaw)
-            ? releaseRaw
-            : [releaseRaw];
+          const releases = Array.isArray(releasesRaw)
+            ? releasesRaw
+            : releasesRaw
+              ? [releasesRaw]
+              : [];
 
           const bestScore = releases[0];
 
@@ -134,18 +136,26 @@ export class MusicBrainzService implements MusicMetadataService {
 
     const releaseDate = String(release?.date || '').trim();
 
-    const mediumRaw = release?.['medium-list']?.medium ?? [];
+    const mediumsRaw = release?.['medium-list']?.medium ?? [];
 
-    const mediums = Array.isArray(mediumRaw) ? mediumRaw : [mediumRaw];
+    const mediums = Array.isArray(mediumsRaw)
+      ? mediumsRaw
+      : mediumsRaw
+        ? [mediumsRaw]
+        : [];
 
     for (const medium of mediums) {
       const tracksRaw = medium?.['track-list']?.track ?? [];
 
-      const tracks = Array.isArray(tracksRaw) ? tracksRaw : [tracksRaw];
+      const tracks = Array.isArray(tracksRaw)
+        ? tracksRaw
+        : tracksRaw
+          ? [tracksRaw]
+          : [];
 
       for (const tr of tracks) {
         const title = String(tr?.recording?.title).trim();
-        const ms = Number(tr?.length) || 0;
+        const ms = Number(tr?.recording?.length ?? tr?.length ?? 0) || 0;
 
         if (!title) continue;
 
