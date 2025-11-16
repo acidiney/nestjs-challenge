@@ -17,11 +17,12 @@ describe('MusicBrainzService', () => {
     const xml = `
       <metadata>
         <release>
+          <date>0000-00-00</date>
           <medium-list>
             <medium>
               <track-list>
-                <track><recording><title>Song A</title></recording></track>
-                <track><title>Song B</title></track>
+                <track><recording><title>Song A</title></recording><length>0</length><<video>false</video></track>
+                <track><recording><title>Song B</title></recording><length>0</length><<video>false</video></track>
               </track-list>
             </medium>
           </medium-list>
@@ -30,15 +31,28 @@ describe('MusicBrainzService', () => {
 
     global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => xml });
 
-    const titles = await service.fetchTracklistByMbid(
+    const titles = await service.fetchTrackInfosByMbid(
       MBID.from('b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d'),
     );
-    expect(titles).toEqual(['Song A', 'Song B']);
+    expect(titles).toEqual([
+      {
+        title: 'Song A',
+        length: '0:00',
+        releaseDate: '0000-00-00',
+        hasVideo: false,
+      },
+      {
+        title: 'Song B',
+        length: '0:00',
+        releaseDate: '0000-00-00',
+        hasVideo: false,
+      },
+    ]);
   });
 
   it('fetchTracklistByMbid returns [] on HTTP error', async () => {
     global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500 });
-    const titles = await service.fetchTracklistByMbid(
+    const titles = await service.fetchTrackInfosByMbid(
       MBID.from('b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d'),
     );
     expect(Array.isArray(titles)).toBe(true);

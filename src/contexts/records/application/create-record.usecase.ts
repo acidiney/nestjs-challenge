@@ -8,6 +8,7 @@ import {
   RECORDS_REPOSITORY,
   RecordsRepository,
 } from '../domain/repositories/records.repository';
+import { Tracklist } from '../domain/types/tracklist.type';
 import { CreateRecordInput } from './inputs/create-record.input';
 import { RecordOutput } from './outputs/record.output';
 import {
@@ -38,10 +39,10 @@ export class CreateRecordUseCase {
       throw new ConflictException('Record already exists');
     }
 
-    let tracklist: string[] | undefined;
+    let tracklist: Tracklist[] | undefined;
 
     if (dto.mbid) {
-      tracklist = await this.metadata.fetchTracklistByMbid(dto.mbid);
+      tracklist = await this.metadata.fetchTrackInfosByMbid(dto.mbid);
     }
 
     const created = await this.repo.create({ ...dto, tracklist });

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+import { Tracklist } from '@/contexts/records/domain/types/tracklist.type';
 import { RecordCategory } from './../../../../domain/enums/record-category.enum';
 import { RecordFormat } from './../../../../domain/enums/record-format.enum';
 
@@ -33,8 +34,8 @@ export class Record extends Document {
   @Prop({ required: false })
   mbid?: string;
 
-  @Prop({ type: [String], required: false, default: [] })
-  tracklist?: string[];
+  @Prop({ type: [Object], required: false, default: [] })
+  tracklist?: Tracklist[];
 }
 
 export type RecordDocument = Record & Document;

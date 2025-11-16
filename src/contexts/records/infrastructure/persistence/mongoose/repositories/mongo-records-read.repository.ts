@@ -14,7 +14,10 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
   private buildFilter(query?: ListRecordsQuery): any {
     const filter: any = {};
     if (query?.search) {
-      filter.$text = { $search: query.search };
+      filter.$text = {
+        $search: query.search,
+        $language: 'none',
+      };
     }
     if (query?.category) {
       filter.category = query.category;
@@ -36,7 +39,9 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
         break;
       case 'relevance':
         if (query?.search) {
-          sort.$textScore = { $meta: 'textScore' };
+          sort.score = { $meta: 'textScore' };
+        } else {
+          sort.created = -1;
         }
         break;
       case 'artist':
@@ -70,6 +75,11 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
   async findAll(query?: ListRecordsQuery): Promise<RecordModel[]> {
     const filter = this.buildFilter(query);
     const sort = this.buildSort(query);
+    const projection = {} as any;
+
+    if (query?.search) {
+      projection.score = { $meta: 'textScore' };
+    }
 
     const page = query?.page && query.page > 0 ? query.page : 1;
     const pageSize =
@@ -77,6 +87,7 @@ export class MongoRecordsReadRepository implements RecordsReadRepository {
 
     const results = await this.recordModel
       .find(filter)
+      .select(projection)
       .sort(sort)
       .skip((page - 1) * pageSize)
       .limit(pageSize)

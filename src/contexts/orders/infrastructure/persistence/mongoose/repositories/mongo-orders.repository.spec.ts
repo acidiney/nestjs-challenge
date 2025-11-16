@@ -53,6 +53,14 @@ describe('MongoOrdersRepository', () => {
       _id: 'r1',
       qty: 2,
     });
+    (m.orderModel.create as any).mockResolvedValue({
+      _id: 'o1',
+      recordId: '000000000000000000000001',
+      quantity: 2,
+      unitPrice: 20,
+      totalPrice: 40,
+      createdAt: new Date('2024-01-01T00:00:00.000Z'),
+    });
     const repo = new MongoOrdersRepository(
       m.orderModel as any,
       m.recordModel as any,

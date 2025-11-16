@@ -42,8 +42,8 @@ const NUM_ORDERS = $NUM_ORDERS;
 const BATCH = 5000;
 
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-const formats = ['VINYL','CD','CASSETTE'];
-const categories = ['ROCK','POP','JAZZ','INDIE','CLASSICAL'];
+const formats = ['Vinyl','CD','Cassette', 'Digital'];
+const categories = ['Rock','Pop','Jazz','Indie','Classical'];
 
 print('Cleaning indexes to speed up inserts (they will be rebuilt by the app)...');
 try { db.records.dropIndexes(); } catch (e) {}
@@ -70,7 +70,7 @@ for (let i = 0; i < NUM_RECORDS; i++) {
 }
 if (batch.length) db.records.insertMany(batch, { ordered: false });
 
-const ids = db.records.find({}, { _id: 1, price: 1 }).toArray();
+const ids = db.records.find({}, { _id: 1, price: 1, artist: 1, album: 1 }).toArray();
 print('Inserted records: ' + ids.length);
 
 print('Inserting orders...');
@@ -82,6 +82,7 @@ for (let i = 0; i < NUM_ORDERS; i++) {
   const unitPrice = rec.price;
   obatch.push({
     recordId: rec._id,
+    recordTitle: rec.artist + ' - ' + rec.album,
     quantity: qty,
     unitPrice,
     totalPrice: unitPrice * qty,

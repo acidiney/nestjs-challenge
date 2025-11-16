@@ -1,3 +1,4 @@
+import { Tracklist } from '../../domain/types/tracklist.type';
 import { MBID } from '../../domain/value-objects/mbid.vo';
 
 export type CreateRecordInput = {
@@ -8,5 +9,5 @@ export type CreateRecordInput = {
   format: string;
   category: string;
   mbid?: MBID;
-  tracklist?: string[];
+  tracklist?: Tracklist[];
 };

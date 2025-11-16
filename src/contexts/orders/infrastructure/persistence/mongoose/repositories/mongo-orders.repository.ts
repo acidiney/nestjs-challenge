@@ -49,12 +49,24 @@ export class MongoOrdersRepository implements OrdersRepository {
     const unitPrice = existing.price;
     const totalPrice = unitPrice * quantity;
 
-    return {
-      id: new Types.ObjectId().toString(),
+    const recordTitle = `${existing.artist} - ${existing.album}`;
+
+    const created = await this.orderModel.create({
       recordId: new Types.ObjectId(recordId) as any,
+      recordTitle,
       quantity,
       unitPrice,
       totalPrice,
+    });
+
+    return {
+      id: created._id.toString(),
+      recordId: created.recordId.toString() as any,
+      recordTitle: created.recordTitle,
+      quantity: created.quantity,
+      unitPrice: created.unitPrice,
+      totalPrice: created.totalPrice,
+      created: (created as any).createdAt,
     };
   }
 
@@ -68,5 +80,33 @@ export class MongoOrdersRepository implements OrdersRepository {
     }
 
     return updated;
+  }
+
+  async findAll(
+    page: number = 1,
+    pageSize: number = 20,
+  ): Promise<OrderModel[]> {
+    const p = page > 0 ? page : 1;
+    const ps = pageSize > 0 ? pageSize : 20;
+    const results = await this.orderModel
+      .find()
+      .sort({ createdAt: -1 })
+      .skip((p - 1) * ps)
+      .limit(ps)
+      .lean()
+      .exec();
+    return results.map((o: any) => ({
+      id: o._id.toString(),
+      recordId: o.recordId,
+      recordTitle: o.recordTitle,
+      quantity: o.quantity,
+      unitPrice: o.unitPrice,
+      totalPrice: o.totalPrice,
+      created: o.createdAt,
+    }));
+  }
+
+  async count(): Promise<number> {
+    return this.orderModel.countDocuments({}).exec();
   }
 }

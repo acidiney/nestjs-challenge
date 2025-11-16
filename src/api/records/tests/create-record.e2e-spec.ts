@@ -6,6 +6,7 @@ import { AppModule } from '@/app.module';
 import { MUSIC_METADATA_SERVICE } from '@/contexts/records/application/services/music-metadata.service';
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
+import { Tracklist } from '@/contexts/records/domain/types/tracklist.type';
 
 describe('RecordController (e2e)', () => {
   let app: INestApplication;
@@ -91,7 +92,7 @@ describe('RecordController (e2e)', () => {
       .expect(409);
 
     const listResponse = await request(app.getHttpServer())
-      .get('/records?artist=The Beatles&album=Abbey Road&format=Vinyl')
+      .get('/records?q=The Beatles&album=Abbey Road&format=Vinyl')
       .expect(200);
 
     expect(Array.isArray(listResponse.body.data)).toBe(true);
@@ -104,7 +105,23 @@ describe('RecordController (e2e)', () => {
         imports: [AppModule],
       })
         .overrideProvider(MUSIC_METADATA_SERVICE)
-        .useValue({ fetchTracklistByMbid: async () => ['Track 1', 'Track 2'] })
+        .useValue({
+          fetchTrackInfosByMbid: async () =>
+            [
+              {
+                title: 'Track 1',
+                length: '3:30',
+                releaseDate: '2023-01-01',
+                hasVideo: false,
+              },
+              {
+                title: 'Track 2',
+                length: '4:00',
+                releaseDate: '2023-01-02',
+                hasVideo: true,
+              },
+            ] as Tracklist[],
+        })
         .compile();
 
       app = moduleFixture.createNestApplication();
@@ -137,7 +154,20 @@ describe('RecordController (e2e)', () => {
 
       recordId = res.body._id;
       expect(Array.isArray(res.body.tracklist)).toBe(true);
-      expect(res.body.tracklist).toEqual(['Track 1', 'Track 2']);
+      expect(res.body.tracklist).toEqual([
+        {
+          title: 'Track 1',
+          length: '3:30',
+          releaseDate: '2023-01-01',
+          hasVideo: false,
+        },
+        {
+          title: 'Track 2',
+          length: '4:00',
+          releaseDate: '2023-01-02',
+          hasVideo: true,
+        },
+      ]);
     });
 
     it('returns 400 for invalid mbid format and does not create', async () => {

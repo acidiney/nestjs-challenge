@@ -7,6 +7,9 @@ export class Order extends Document {
   recordId: Types.ObjectId;
 
   @Prop({ required: true })
+  recordTitle: string;
+
+  @Prop({ required: true })
   quantity: number;
 
   @Prop({ required: true })

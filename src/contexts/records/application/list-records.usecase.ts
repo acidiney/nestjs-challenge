@@ -17,6 +17,7 @@ export class ListRecordsUseCase {
   async execute(query?: ListRecordsQuery): Promise<RecordsPageOutput> {
     const page = query?.page && query.page > 0 ? query.page : 1;
     const perPage = query?.pageSize && query.pageSize > 0 ? query.pageSize : 20;
+
     const [records, total] = await Promise.all([
       this.readRepo.findAll(query),
       this.readRepo.count(query),

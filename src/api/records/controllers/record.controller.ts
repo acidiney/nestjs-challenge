@@ -146,7 +146,6 @@ export class RecordController {
     if (q) terms.push(q);
     if (artist) terms.push(artist);
     if (album) terms.push(album);
-    if (format) terms.push(format);
 
     const request: ListRecordsQuery = {
       search: terms.length ? terms.join(' ') : undefined,

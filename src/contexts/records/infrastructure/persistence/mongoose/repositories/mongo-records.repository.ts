@@ -26,10 +26,20 @@ export class MongoRecordsRepository implements RecordsRepository {
   }
 
   async updateById(id: string, dto: UpdateRecordInput): Promise<void> {
-    const updated = await this.recordModel.updateOne({
-      ...dto,
-      id,
-      mbid: dto.mbid?.toString(),
+    const set: any = { ...dto };
+    if (dto.mbid !== undefined && dto.mbid !== null) {
+      set.mbid = dto.mbid.toString();
+    } else {
+      delete set.mbid;
+    }
+
+    const update: any = { $set: set };
+    if (dto.mbid === undefined || dto.mbid === null) {
+      update.$unset = { mbid: '' };
+    }
+
+    const updated = await this.recordModel.updateOne({ _id: id }, update, {
+      upsert: false,
     });
 
     if (!updated) {

@@ -5,6 +5,7 @@ import {
 } from '@/contexts/records/domain/repositories/mbid-cache.repository';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { XMLParser } from 'fast-xml-parser';
+import { Tracklist } from '../../domain/types/tracklist.type';
 import { MBID } from '../../domain/value-objects/mbid.vo';
 
 @Injectable()
@@ -21,26 +22,16 @@ export class MusicBrainzService implements MusicMetadataService {
     private readonly cacheRepo: MbidCacheRepository,
   ) {}
 
-  async fetchTracklistByMbid(mbid: MBID): Promise<string[]> {
-    const cached = await this.cacheRepo.findTracklist(mbid.toString());
-    if (cached && cached.length) {
-      return cached;
-    }
-
+  async fetchTrackInfosByMbid(mbid: MBID): Promise<Tracklist[]> {
     const url = this.buildReleaseUrl(mbid.toString());
-
     try {
       const xml = await this.fetchXml(url);
-      const titles = this.parseXmlAndExtractTitles(xml);
-
-      if (titles.length) {
-        await this.cacheRepo.upsertTracklist(mbid.toString(), titles, 60);
-      }
-
-      return titles;
+      return this.parseXmlAndExtractTrackInfos(xml);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      this.logger.warn(`MusicBrainz fetch failed for mbid=${mbid}: ${message}`);
+      this.logger.warn(
+        `MusicBrainz fetch (details) failed for mbid=${mbid}: ${message}`,
+      );
       return [];
     }
   }
@@ -69,20 +60,32 @@ export class MusicBrainzService implements MusicMetadataService {
     return res.text();
   }
 
-  private parseXmlAndExtractTitles(xml: string): string[] {
+  private parseXmlAndExtractTrackInfos(xml: string): {
+    title: string;
+    length: string;
+    releaseDate: string;
+    hasVideo: boolean;
+  }[] {
     const parser = new XMLParser({
       ignoreAttributes: false,
       attributeNamePrefix: '',
     });
     const obj = parser.parse(xml);
-    return this.extractTrackTitlesFromXml(obj);
+    return this.extractTrackInfosFromXml(obj);
   }
 
-  private extractTrackTitlesFromXml(obj: any): string[] {
-    const titles: string[] = [];
+  private extractTrackInfosFromXml(obj: any): Tracklist[] {
+    const out: {
+      title: string;
+      length: string;
+      releaseDate: string;
+      hasVideo: boolean;
+    }[] = [];
     const release =
       obj?.metadata?.release ?? obj?.metadata?.['release-list']?.release;
-    if (!release) return titles;
+    if (!release) return out;
+
+    const releaseDate = String(release?.date || '').trim();
 
     const mediumsRaw = release?.['medium-list']?.medium ?? [];
     const mediums = Array.isArray(mediumsRaw)
@@ -90,7 +93,6 @@ export class MusicBrainzService implements MusicMetadataService {
       : mediumsRaw
         ? [mediumsRaw]
         : [];
-
     for (const medium of mediums) {
       const tracksRaw = medium?.['track-list']?.track ?? [];
       const tracks = Array.isArray(tracksRaw)
@@ -100,9 +102,24 @@ export class MusicBrainzService implements MusicMetadataService {
           : [];
       for (const tr of tracks) {
         const title = (tr?.recording?.title ?? tr?.title ?? '').trim();
-        if (title) titles.push(title);
+        const ms = Number(tr?.recording?.length ?? tr?.length ?? 0) || 0;
+        const hasVideo = Boolean(
+          (tr?.recording?.video ?? tr?.video ?? '')
+            .toString()
+            .toLowerCase()
+            .replace(/\s+/g, '') === 'true',
+        );
+        if (!title) continue;
+        out.push({ title, length: this.msToMinSec(ms), releaseDate, hasVideo });
       }
     }
-    return titles;
+    return out;
+  }
+
+  private msToMinSec(ms: number): string {
+    const total = Math.max(0, Math.round(ms / 1000));
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   }
 }
