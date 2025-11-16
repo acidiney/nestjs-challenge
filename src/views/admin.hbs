@@ -29,14 +29,13 @@
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="min-h-screen bg-gray-900 text-gray-100">
-  <div x-data="admin()" x-init="load()" class="w-4/5 mx-auto p-6 min-h-screen">
+  <div x-data="admin()" x-init="init()" class="w-4/5 mx-auto p-6 min-h-screen">
     <h1>Admin Panel</h1>
     <p class="muted">Manage records and orders.</p>
     <nav class="flex gap-3 mt-8 mb-8">
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800" :class="page==='dashboard' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="page='dashboard'">Dashboard</a>
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800" :class="page==='records' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="page='records'">Records</a>
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800" :class="page==='create' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="page='create'">Create Record</a>
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800" :class="page==='orders' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="page='orders'">Orders</a>
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800" :class="page==='dashboard' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="setPage('dashboard')">Dashboard</a>
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800" :class="page==='records' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="setPage('records')">Records</a>
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800" :class="page==='orders' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="setPage('orders')">Orders</a>
     </nav>
 
     <section x-show="page==='dashboard'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
@@ -51,7 +50,10 @@
     </section>
 
     <section x-show="page==='records'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
-      <h2>Records</h2>
+      <div class="flex items-center justify-between mb-4">
+        <h2>Records</h2>
+        <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" @click="openCreateModal()">New Record</button>
+      </div>
       <div class="row">
         <div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
@@ -89,20 +91,35 @@
           <table class="min-w-full text-sm border border-gray-700 rounded-lg overflow-hidden mt-3 bg-gray-900">
             <thead>
               <tr>
-                <th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Id</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Artist</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Album</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Price</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Format</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Category</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">MBID</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Actions</th>
+                <th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Artist</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Album</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Price</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Format</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Category</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">MBID</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               <template x-for="r in records" :key="r.id">
                 <tr>
-                  <td class="border-t border-gray-700 px-3 py-2" x-text="r.id"></td>
                   <td class="border-t border-gray-700 px-3 py-2" x-text="r.artist"></td>
                   <td class="border-t border-gray-700 px-3 py-2" x-text="r.album"></td>
                   <td class="border-t border-gray-700 px-3 py-2" x-text="r.price"></td>
                   <td class="border-t border-gray-700 px-3 py-2" x-text="r.qty"></td>
                   <td class="border-t border-gray-700 px-3 py-2" x-text="r.format"></td>
                   <td class="border-t border-gray-700 px-3 py-2" x-text="r.category"></td>
-                  <td class="border-t border-gray-700 px-3 py-2" x-text="r.mbid"></td>
+                  <td class="border-t border-gray-700 px-3 py-2 text-center">
+                    <template x-if="r.mbid">
+                      <span class="inline-flex items-center text-green-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      </span>
+                    </template>
+                    <template x-if="!r.mbid">
+                      <span class="inline-flex items-center text-red-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M18 6L6 18" />
+                          <path d="M6 6l12 12" />
+                        </svg>
+                      </span>
+                    </template>
+                  </td>
                   <td class="border-t border-gray-700 px-3 py-2"><button class="text-blue-400 hover:text-blue-300 underline" @click="selectRecord(r)">Edit</button></td>
                 </tr>
               </template>
@@ -135,39 +152,7 @@
       </div>
     </section>
 
-    <section x-show="page==='create'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
-      <h2>Create Record</h2>
-      <div class="row">
-        <div>
-          <label class="block text-sm font-medium">Artist<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.artist"></label>
-          <label class="block text-sm font-medium">Album<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.album"></label>
-          <label class="block text-sm font-medium">Price<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.price"></label>
-          <label class="block text-sm font-medium">Quantity<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.qty"></label>
-          <label>Format
-            <select class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.format">
-              <option>Vinyl</option>
-              <option>CD</option>
-              <option>Cassette</option>
-              <option>Digital</option>
-            </select>
-          </label>
-          <label>Category
-            <select class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.category">
-              <option>Rock</option>
-              <option>Jazz</option>
-              <option>Hip-Hop</option>
-              <option>Classical</option>
-              <option>Pop</option>
-              <option>Alternative</option>
-              <option>Indie</option>
-            </select>
-          </label>
-          <label class="block text-sm font-medium">MBID<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.mbid"></label>
-          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" @click="createRecord">Create</button>
-          <div class="mt-2 text-sm" :class="createStatus.includes('Created') ? 'text-green-400' : (createStatus ? 'text-red-400' : 'text-gray-400')" x-text="createStatus || ''"></div>
-        </div>
-      </div>
-    </section>
+
 
     <section x-show="page==='orders'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
       <h2>Orders</h2>
@@ -186,38 +171,74 @@
     <div x-cloak x-show="showEditModal" x-transition.opacity @keydown.escape.window="showEditModal=false" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click="showEditModal=false">
       <div class="bg-gray-800 border border-gray-700 text-gray-100 rounded-lg p-6 w-full max-w-lg shadow-xl" x-transition.scale @click.stop>
         <h3>Edit Record</h3>
-        <label class="block text-sm font-medium">Id<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.id" disabled></label>
-        <label class="block text-sm font-medium">Artist<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.artist"></label>
-        <label class="block text-sm font-medium">Album<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.album"></label>
-        <label class="block text-sm font-medium">Price<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.price"></label>
-        <label class="block text-sm font-medium">Quantity<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.qty"></label>
-        <label>Format
-          <select class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.format">
-            <option>Vinyl</option>
-            <option>CD</option>
-            <option>Cassette</option>
-            <option>Digital</option>
-          </select>
-        </label>
-        <label>Category
-          <select class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.category">
-            <option>Rock</option>
-            <option>Jazz</option>
-            <option>Hip-Hop</option>
-            <option>Classical</option>
-            <option>Pop</option>
-            <option>Alternative</option>
-            <option>Indie</option>
-          </select>
-        </label>
-        <label class="block text-sm font-medium">MBID<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.mbid"></label>
-        <div class="row">
-          <div>
-            <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded" @click="showEditModal=false">Cancel</button>
-            <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" :disabled="!er.id" @click="updateRecord">Update</button>
-          </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <label class="block text-sm font-medium md:col-span-1">Artist<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.artist"></label>
+          <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.album"></label>
+          <label class="block text-sm font-medium md:col-span-1">Price<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.price"></label>
+          <label class="block text-sm font-medium md:col-span-1">Quantity<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.qty"></label>
+          <label class="block text-sm font-medium md:col-span-1">Format
+            <select class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.format">
+              <option>Vinyl</option>
+              <option>CD</option>
+              <option>Cassette</option>
+              <option>Digital</option>
+            </select>
+          </label>
+          <label class="block text-sm font-medium md:col-span-1">Category
+            <select class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.category">
+              <option>Rock</option>
+              <option>Jazz</option>
+              <option>Hip-Hop</option>
+              <option>Classical</option>
+              <option>Pop</option>
+              <option>Alternative</option>
+              <option>Indie</option>
+            </select>
+          </label>
+          <label class="block text-sm font-medium md:col-span-2">MBID<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.mbid"></label>
+        </div>
+        <div class="flex items-center justify-end gap-3 mt-6">
+          <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded" @click="showEditModal=false">Cancel</button>
+          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" :disabled="!er.id" @click="updateRecord">Update</button>
         </div>
         <div class="mt-2 text-sm" :class="updateStatus.includes('Updated') ? 'text-green-400' : (updateStatus ? 'text-red-400' : 'text-gray-400')" x-text="updateStatus || ''"></div>
+      </div>
+    </div>
+
+    <div x-cloak x-show="showCreateModal" x-transition.opacity @keydown.escape.window="showCreateModal=false" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click="showCreateModal=false">
+      <div class="bg-gray-800 border border-gray-700 text-gray-100 rounded-lg p-6 w-full max-w-lg shadow-xl" x-transition.scale @click.stop>
+        <h3>New Record</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <label class="block text-sm font-medium md:col-span-1">Artist<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.artist"></label>
+          <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.album"></label>
+          <label class="block text-sm font-medium md:col-span-1">Price<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.price"></label>
+          <label class="block text-sm font-medium md:col-span-1">Quantity<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.qty"></label>
+          <label class="block text-sm font-medium md:col-span-1">Format
+            <select class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.format">
+              <option>Vinyl</option>
+              <option>CD</option>
+              <option>Cassette</option>
+              <option>Digital</option>
+            </select>
+          </label>
+          <label class="block text-sm font-medium md:col-span-1">Category
+            <select class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.category">
+              <option>Rock</option>
+              <option>Jazz</option>
+              <option>Hip-Hop</option>
+              <option>Classical</option>
+              <option>Pop</option>
+              <option>Alternative</option>
+              <option>Indie</option>
+            </select>
+          </label>
+          <label class="block text-sm font-medium md:col-span-2">MBID<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.mbid"></label>
+        </div>
+        <div class="flex items-center justify-end gap-3 mt-6">
+          <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded" @click="showCreateModal=false">Cancel</button>
+          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" @click="createRecord">Create</button>
+        </div>
+        <div class="mt-2 text-sm" :class="createStatus.includes('Created') ? 'text-green-400' : (createStatus ? 'text-red-400' : 'text-gray-400')" x-text="createStatus || ''"></div>
       </div>
     </div>
   </div>
@@ -225,8 +246,9 @@
   <script>
     function admin(){
       return {
-        page: 'dashboard',
+        page: (typeof localStorage !== 'undefined' && localStorage.getItem('adminPage')) || 'dashboard',
         showEditModal: false,
+        showCreateModal: false,
         records: [],
         loading: false,
         createStatus: '',
@@ -236,7 +258,7 @@
         search: '',
         formatFilter: '',
         categoryFilter: '',
-        sortParam: 'created',
+        sortParam: 'relevance',
         currentPage: 1,
         perPage: 20,
         total: 0,
@@ -266,6 +288,14 @@
             this.loading = false;
           }
         },
+        init(){
+          const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('adminPage') : null;
+          if(saved){ this.page = saved; }
+          if(this.page === 'records' || this.page === 'dashboard'){ this.load(); }
+        },
+        setPage(p){ this.page = p; if(typeof localStorage !== 'undefined'){ localStorage.setItem('adminPage', p); } if(p === 'records' || p === 'dashboard'){ this.load(); } },
+        openCreateModal(){ this.resetCreate(); this.showCreateModal = true; },
+        resetCreate(){ this.cr = { artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' }; this.createStatus = ''; },
         nextPage(){ if(this.currentPage < this.totalPages){ this.currentPage++; this.load(); } },
         prevPage(){ if(this.currentPage > 1){ this.currentPage--; this.load(); } },
         applyFilters(){ this.load(); },
