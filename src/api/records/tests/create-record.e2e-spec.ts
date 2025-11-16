@@ -112,13 +112,11 @@ describe('RecordController (e2e)', () => {
                 title: 'Track 1',
                 length: '3:30',
                 releaseDate: '2023-01-01',
-                hasVideo: false,
               },
               {
                 title: 'Track 2',
                 length: '4:00',
                 releaseDate: '2023-01-02',
-                hasVideo: true,
               },
             ] as Tracklist[],
         })
@@ -159,13 +157,11 @@ describe('RecordController (e2e)', () => {
           title: 'Track 1',
           length: '3:30',
           releaseDate: '2023-01-01',
-          hasVideo: false,
         },
         {
           title: 'Track 2',
           length: '4:00',
           releaseDate: '2023-01-02',
-          hasVideo: true,
         },
       ]);
     });

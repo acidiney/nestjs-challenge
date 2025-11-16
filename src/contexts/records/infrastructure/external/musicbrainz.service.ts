@@ -47,8 +47,13 @@ export class MusicBrainzService implements MusicMetadataService {
           this.BASE_URL,
         );
 
-        const xml = await this.fetchXml(url);
-        return this.extractTrackInfosFromXml(xml);
+        try {
+          const xml = await this.fetchXml(url);
+          return this.extractTrackInfosFromXml(xml);
+        } catch (err) {
+          Sentry.captureException(err);
+          return [];
+        }
       },
     );
   }
@@ -69,22 +74,31 @@ export class MusicBrainzService implements MusicMetadataService {
 
         const url = new URL(`release?${params.toString()}`, this.BASE_URL);
 
-        const xml = await this.fetchXml(url);
-        const obj = this.parser.parse(xml);
+        try {
+          const xml = await this.fetchXml(url);
+          const obj = this.parser.parse(xml);
 
-        const list = obj?.metadata?.['release-list'];
+          const list = obj?.metadata?.['release-list'];
 
-        const releases = list?.release ?? [];
+          const releaseRaw = list?.release ?? [];
 
-        const bestScore = releases[0];
+          const releases = Array.isArray(releaseRaw)
+            ? releaseRaw
+            : [releaseRaw];
 
-        if (!bestScore) return null;
+          const bestScore = releases[0];
 
-        const id = (bestScore?.id || '').trim();
+          if (!bestScore) return null;
 
-        if (!MBID.isValid(id)) return null;
+          const id = (bestScore?.id || '').trim();
 
-        return MBID.from(id);
+          if (!MBID.isValid(id)) return null;
+
+          return MBID.from(id);
+        } catch (err) {
+          Sentry.captureException(err);
+          return null;
+        }
       },
     );
   }
@@ -120,7 +134,9 @@ export class MusicBrainzService implements MusicMetadataService {
 
     const releaseDate = String(release?.date || '').trim();
 
-    const mediums = release?.['medium-list']?.medium ?? [];
+    const mediumRaw = release?.['medium-list']?.medium ?? [];
+
+    const mediums = Array.isArray(mediumRaw) ? mediumRaw : [mediumRaw];
 
     for (const medium of mediums) {
       const tracks = medium?.['track-list']?.track ?? [];

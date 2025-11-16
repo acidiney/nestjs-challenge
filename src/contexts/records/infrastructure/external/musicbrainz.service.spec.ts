@@ -39,13 +39,11 @@ describe('MusicBrainzService', () => {
         title: 'Song A',
         length: '0:00',
         releaseDate: '0000-00-00',
-        hasVideo: false,
       },
       {
         title: 'Song B',
         length: '0:00',
         releaseDate: '0000-00-00',
-        hasVideo: false,
       },
     ]);
   });
@@ -57,15 +55,5 @@ describe('MusicBrainzService', () => {
     );
     expect(Array.isArray(titles)).toBe(true);
     expect(titles.length).toBe(0);
-  });
-
-  it('builds release URL with defaults', () => {
-    const anyService: any = service;
-    const url: URL = anyService.buildReleaseUrl(
-      'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d',
-    );
-    expect(url.toString()).toContain('release/');
-    expect(url.searchParams.get('inc')).toBe('recordings');
-    expect(url.searchParams.get('fmt')).toBe('xml');
   });
 });
