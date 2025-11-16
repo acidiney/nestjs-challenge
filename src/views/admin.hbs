@@ -38,10 +38,10 @@
   <div x-data="admin()" x-init="init()" class="max-w-7xl mx-auto w-full min-h-screen px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
     <h1>Admin Panel</h1>
     <p class="muted">Manage records and orders.</p>
-    <nav class="flex flex-wrap gap-2 sm:gap-3 mt-6 mb-6">
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='dashboard' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="setPage('dashboard')">Dashboard</a>
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='records' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="setPage('records')">Records</a>
-      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='orders' ? 'bg-gray-800 border-gray-600' : ''" @click.prevent="setPage('orders')">Orders</a>
+    <nav class="flex flex-wrap gap-2 sm:gap-3 mt-6 mb-6" aria-label="Primary">
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='dashboard' ? 'bg-gray-800 border-gray-600' : ''" :aria-current="page==='dashboard' ? 'page' : null" @click.prevent="setPage('dashboard')">Dashboard</a>
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='records' ? 'bg-gray-800 border-gray-600' : ''" :aria-current="page==='records' ? 'page' : null" @click.prevent="setPage('records')">Records</a>
+      <a href="#" class="px-3 py-2 rounded-md border border-gray-700 text-gray-200 hover:bg-gray-800 text-sm" :class="page==='orders' ? 'bg-gray-800 border-gray-600' : ''" :aria-current="page==='orders' ? 'page' : null" @click.prevent="setPage('orders')">Orders</a>
     </nav>
 
     <section x-show="page==='dashboard'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
@@ -50,7 +50,7 @@
         <div>
           <div>Records: <span x-text="total"></span></div>
           <div>Last loaded: <span x-text="lastLoaded"></span></div>
-          <button @click="load()">Reload</button>
+          <button type="button" @click="load()">Reload</button>
         </div>
       </div>
     </section>
@@ -58,14 +58,14 @@
     <section x-show="page==='records'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
       <div class="flex items-center justify-between mb-4">
         <h2>Records</h2>
-        <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" @click="openCreateModal()">New Record</button>
+        <button type="button" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" @click="openCreateModal()" aria-label="Create new record">New Record</button>
       </div>
       <div class="row">
         <div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <label class="block text-sm font-medium">Search<input class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100 placeholder-gray-400" type="text" x-model="search" @keyup.enter="currentPage=1; load()" @blur="currentPage=1; load()" placeholder="Beatles, Abbey Road..."></label>
-            <label class="block text-sm font-medium">Format
-              <select class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="formatFilter" @change="currentPage=1; load()">
+            <label class="block text-sm font-medium" for="formatFilter">format
+              <select id="formatFilter" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="formatFilter" @change="currentPage=1; load()">
                 <option value="">Any</option>
                 <option>Vinyl</option>
                 <option>CD</option>
@@ -73,8 +73,8 @@
                 <option>Digital</option>
               </select>
             </label>
-            <label class="block text-sm font-medium">Category
-              <select class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="categoryFilter" @change="currentPage=1; load()">
+            <label class="block text-sm font-medium" for="categoryFilter">Category
+              <select id="categoryFilter" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="categoryFilter" @change="currentPage=1; load()">
                 <option value="">Any</option>
                 <option>Rock</option>
                 <option>Jazz</option>
@@ -85,15 +85,15 @@
                 <option>Indie</option>
               </select>
             </label>
-            <label class="block text-sm font-medium">Sort
-              <select class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="sortParam" @change="currentPage=1; load()">
+            <label class="block text-sm font-medium" for="sortParam">Sort
+              <select id="sortParam" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="sortParam" @change="currentPage=1; load()">
                 <option value="created">Created</option>
                 <option value="price">Price</option>
                 <option value="relevance">Relevance</option>
               </select>
             </label>
           </div>
-          <div class="text-gray-400 text-sm" x-text="loading ? 'Loading records...' : ('Page ' + currentPage + ' of ' + totalPages + ' • ' + records.length + ' items loaded')"></div>
+          <div class="text-gray-400 text-sm" role="status" aria-live="polite" x-text="loading ? 'Loading records...' : ('Page ' + currentPage + ' of ' + totalPages + ' • ' + records.length + ' items loaded')"></div>
           <div class="sm:hidden space-y-3 mt-3">
             <template x-for="r in records" :key="r.id">
               <div class="rounded-lg border border-gray-700 bg-gray-900 p-3">
@@ -110,14 +110,14 @@
                       <span class="inline-block px-2 py-0.5 rounded bg-gray-800 border border-gray-700 ml-2" x-text="r.category"></span>
                     </div>
                   </div>
-                  <div class="text-green-400" x-show="r.mbid">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                  <div class="text-green-400" x-show="r.mbid" aria-label="MBID available">
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
                   </div>
                 </div>
                 <div class="flex items-center gap-4 mt-3">
-                  <button class="text-blue-400 hover:text-blue-300 underline" @click="selectRecord(r)">Edit</button>
+                  <button class="text-blue-400 hover:text-blue-300 underline" type="button" @click="selectRecord(r)">Edit</button>
                   <template x-if="r.mbid">
-                    <button class="text-gray-300 hover:text-gray-100 underline" @click="openTrackSlider(r)">Show tracks</button>
+                    <button class="text-gray-300 hover:text-gray-100 underline" type="button" @click="openTrackSlider(r)" :aria-expanded="Boolean(expanded[r.id])" :aria-controls="'tracks-'+r.id">Show tracks</button>
                   </template>
                 </div>
               </div>
@@ -125,9 +125,10 @@
           </div>
           <div class="overflow-x-auto -mx-4 sm:mx-0">
           <table class="hidden sm:table min-w-full text-sm border border-gray-700 rounded-lg overflow-hidden mt-3 bg-gray-900">
+            <caption class="sr-only">Records list</caption>
             <thead>
               <tr>
-                <th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Artist</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Album</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Price</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Format</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Category</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">MBID</th><th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Actions</th>
+                <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Artist</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Album</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Price</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Format</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Category</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">MBID</th><th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -142,15 +143,15 @@
 
                 <td class="border-t border-gray-700 px-3 py-2 text-center hidden sm:table-cell">
                   <template x-if="r.mbid">
-                    <span class="inline-flex items-center text-green-400">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <span class="inline-flex items-center text-green-400" aria-label="MBID available">
+                      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
                     </span>
                   </template>
                   <template x-if="!r.mbid">
-                    <span class="inline-flex items-center text-red-400">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <span class="inline-flex items-center text-red-400" aria-label="MBID missing">
+                      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6L6 18" />
                         <path d="M6 6l12 12" />
                       </svg>
@@ -162,7 +163,7 @@
                   <div class="flex items-center gap-3">
                     <button class="text-blue-400 hover:text-blue-300 underline" @click="selectRecord(r)">Edit</button>
                     <template x-if="r.mbid">
-                      <button class="text-gray-300 hover:text-gray-100 underline" @click="openTrackSlider(r)">
+                      <button type="button" class="text-gray-300 hover:text-gray-100 underline" @click="openTrackSlider(r)" :aria-expanded="Boolean(expanded[r.id])" :aria-controls="'tracks-'+r.id">
                         <span>Show tracks</span>
                       </button>
                     </template>
@@ -173,7 +174,7 @@
               <tr>
                 <td colspan="8" :class="expanded[r.id] ? 'py-2' : 'py-0'">
                   <div class="overflow-hidden transition-all duration-300 ease-in-out"
-                    :style="expanded[r.id] ? 'max-height:1000px;opacity:1;margin-top:0.75rem' : 'max-height:0;opacity:0;margin-top:0'">
+                    :style="expanded[r.id] ? 'max-height:1000px;opacity:1;margin-top:0.75rem' : 'max-height:0;opacity:0;margin-top:0'" :id="'tracks-'+r.id">
                     <div class="p-2 bg-gray-800 rounded">
                       <div class="font-bold text-lg mb-2">Tracklist</div>
                       <template x-for="t in r.tracklist" :key="t.title || t">
@@ -192,17 +193,17 @@
           </div>
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4">
             <div class="flex flex-row items-center gap-2 sm:gap-3 justify-center sm:justify-start">
-              <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" type="button"
                 :disabled="currentPage <= 1 || loading"
-                @click="prevPage">Prev</button>
+                @click="prevPage" :aria-label="'Previous page, current ' + currentPage">Prev</button>
               <div class="text-gray-300 text-sm">Page <span x-text="currentPage"></span> / <span x-text="totalPages"></span></div>
-              <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" type="button"
                 :disabled="currentPage >= totalPages || loading"
-                @click="nextPage">Next</button>
+                @click="nextPage" :aria-label="'Next page, current ' + currentPage">Next</button>
             </div>
             <div class="flex flex-col sm:flex-row items-center gap-2 sm:justify-end">
-              <label class="text-sm text-gray-300">Per page</label>
-              <select class="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100"
+              <label class="text-sm text-gray-300" for="perPageSelect">Per page</label>
+              <select id="perPageSelect" class="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100"
                 x-model.number="perPage"
                 @change="currentPage=1; load()">
                 <option :value="10">10</option>
@@ -266,7 +267,7 @@
       </div>
       <div class="mt-8">
         <h3 class="text-lg font-semibold mb-2">Recent Orders</h3>
-        <div class="text-sm text-gray-400 mb-2" x-text="orderListLoading ? 'Loading orders...' : ('Page ' + ordersPage + ' of ' + ordersTotalPages + ' • ' + orders.length + ' items loaded')"></div>
+        <div class="text-sm text-gray-400 mb-2" role="status" aria-live="polite" x-text="orderListLoading ? 'Loading orders...' : ('Page ' + ordersPage + ' of ' + ordersTotalPages + ' • ' + orders.length + ' items loaded')"></div>
         <div class="sm:hidden space-y-3">
           <template x-for="o in orders" :key="o.id">
             <div class="rounded-lg border border-gray-700 bg-gray-900 p-3">
@@ -282,13 +283,14 @@
         </div>
         <div class="overflow-x-auto -mx-4 sm:mx-0">
         <table class="hidden sm:table min-w-full text-sm border border-gray-700 rounded-lg overflow-hidden bg-gray-900">
+          <caption class="sr-only">Recent orders</caption>
           <thead>
             <tr>
-              <th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Record</th>
-              <th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th>
-              <th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Unit</th>
-              <th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Total</th>
-              <th class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Created</th>
+              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Record</th>
+              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Qty</th>
+              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Unit</th>
+              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left">Total</th>
+              <th scope="col" class="border-b border-gray-700 bg-gray-800 px-3 py-2 text-left hidden sm:table-cell">Created</th>
             </tr>
           </thead>
           <tbody>
@@ -311,8 +313,8 @@
             <button class="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="ordersPage>=ordersTotalPages || orderListLoading" @click="ordersNextPage">Next</button>
           </div>
           <div class="flex flex-col sm:flex-row items-center gap-2 sm:justify-end">
-            <label class="text-sm text-gray-300">Per page</label>
-            <select class="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100" x-model.number="ordersPerPage" @change="ordersPage=1; loadOrders()">
+            <label class="text-sm text-gray-300" for="ordersPerPageSelect">Per page</label>
+            <select id="ordersPerPageSelect" class="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-gray-100" x-model.number="ordersPerPage" @change="ordersPage=1; loadOrders()">
               <option :value="10">10</option>
               <option :value="20">20</option>
               <option :value="50">50</option>
@@ -332,16 +334,16 @@
           <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="er.album" @input="debouncedLookup('edit')"></label>
           <label class="block text-sm font-medium md:col-span-1">Price<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.price"></label>
           <label class="block text-sm font-medium md:col-span-1">Quantity<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="er.qty"></label>
-          <label class="block text-sm font-medium md:col-span-1">Format
-            <select class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.format">
+          <label class="block text-sm font-medium md:col-span-1" for="editFormat">Format
+            <select id="editFormat" class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.format">
               <option>Vinyl</option>
               <option>CD</option>
               <option>Cassette</option>
               <option>Digital</option>
             </select>
           </label>
-          <label class="block text-sm font-medium md:col-span-1">Category
-            <select class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.category">
+          <label class="block text-sm font-medium md:col-span-1" for="editCategory">Category
+            <select id="editCategory" class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="er.category">
               <option>Rock</option>
               <option>Jazz</option>
               <option>Hip-Hop</option>
@@ -384,16 +386,16 @@
           <label class="block text-sm font-medium md:col-span-1">Album<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="text" x-model="cr.album" @input="debouncedLookup('create')"></label>
           <label class="block text-sm font-medium md:col-span-1">Price<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.price"></label>
           <label class="block text-sm font-medium md:col-span-1">Quantity<input class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" type="number" x-model.number="cr.qty"></label>
-          <label class="block text-sm font-medium md:col-span-1">Format
-            <select class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.format">
+          <label class="block text-sm font-medium md:col-span-1" for="createFormat">Format
+            <select id="createFormat" class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.format">
               <option>Vinyl</option>
               <option>CD</option>
               <option>Cassette</option>
               <option>Digital</option>
             </select>
           </label>
-          <label class="block text-sm font-medium md:col-span-1">Category
-            <select class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.category">
+          <label class="block text-sm font-medium md:col-span-1" for="createCategory">Category
+            <select id="createCategory" class="mt-1 block w-full max-w-none bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100" x-model="cr.category">
               <option>Rock</option>
               <option>Jazz</option>
               <option>Hip-Hop</option>
