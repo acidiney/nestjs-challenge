@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { ApiModule } from './api/api.module';
 import { AppConfig } from './app.config';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { AppConfig } from './app.config';
     EventEmitterModule.forRoot(),
     ApiModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_FILTER,
