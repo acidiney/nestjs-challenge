@@ -28,15 +28,20 @@ describe('ListRecordsUseCase', () => {
     },
   ];
 
-  it('returns mapped outputs from repository results', async () => {
-    const readRepo = { findAll: jest.fn().mockResolvedValue(models) };
+  it('returns paginated outputs from repository results', async () => {
+    const readRepo = {
+      findAll: jest.fn().mockResolvedValue(models),
+      count: jest.fn().mockResolvedValue(2),
+    };
     const usecase = new ListRecordsUseCase(readRepo as any);
 
-    const outputs = await usecase.execute();
+    const payload = await usecase.execute();
 
     expect(readRepo.findAll).toHaveBeenCalledWith(undefined);
-    expect(outputs).toHaveLength(2);
-    expect(outputs[0]).toMatchObject({
+    expect(readRepo.count).toHaveBeenCalledWith(undefined);
+    expect(payload).toMatchObject({ page: 1, perPage: 20, total: 2 });
+    expect(payload.data).toHaveLength(2);
+    expect(payload.data[0]).toMatchObject({
       id: 'rec_1',
       artist: 'The Beatles',
       album: 'Abbey Road',
@@ -47,8 +52,11 @@ describe('ListRecordsUseCase', () => {
     });
   });
 
-  it('passes query to repository and returns empty when none found', async () => {
-    const readRepo = { findAll: jest.fn().mockResolvedValue([]) };
+  it('passes query to repository and returns empty data when none found', async () => {
+    const readRepo = {
+      findAll: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+    };
     const usecase = new ListRecordsUseCase(readRepo as any);
 
     const query: ListRecordsQuery = {
@@ -60,9 +68,11 @@ describe('ListRecordsUseCase', () => {
       pageSize: 5,
     };
 
-    const outputs = await usecase.execute(query);
+    const payload = await usecase.execute(query);
 
     expect(readRepo.findAll).toHaveBeenCalledWith(query);
-    expect(outputs).toEqual([]);
+    expect(readRepo.count).toHaveBeenCalledWith(query);
+    expect(payload).toMatchObject({ page: 2, perPage: 5, total: 0 });
+    expect(payload.data).toEqual([]);
   });
 });

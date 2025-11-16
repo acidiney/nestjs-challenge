@@ -19,6 +19,7 @@ import { CreateRecordInput } from '@/contexts/records/application/inputs/create-
 import { UpdateRecordInput } from '@/contexts/records/application/inputs/update-record.input';
 import { ListRecordsUseCase } from '@/contexts/records/application/list-records.usecase';
 import { RecordOutput } from '@/contexts/records/application/outputs/record.output';
+import { RecordsPageOutput } from '@/contexts/records/application/outputs/records-page.output';
 import { UpdateRecordUseCase } from '@/contexts/records/application/update-record.usecase';
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
@@ -140,7 +141,7 @@ export class RecordController {
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 20,
     @Query('sort') sort: RecordSortParam = 'relevance',
-  ): Promise<RecordOutput[]> {
+  ): Promise<RecordsPageOutput> {
     const terms: string[] = [];
     if (q) terms.push(q);
     if (artist) terms.push(artist);

@@ -5,6 +5,7 @@ import {
   RecordsReadRepository,
 } from '../domain/repositories/records-read.repository';
 import { RecordOutput } from './outputs/record.output';
+import { RecordsPageOutput } from './outputs/records-page.output';
 
 @Injectable()
 export class ListRecordsUseCase {
@@ -13,8 +14,19 @@ export class ListRecordsUseCase {
     private readonly readRepo: RecordsReadRepository,
   ) {}
 
-  async execute(query?: ListRecordsQuery): Promise<RecordOutput[]> {
-    const records = await this.readRepo.findAll(query);
-    return records.map(RecordOutput.fromModel);
+  async execute(query?: ListRecordsQuery): Promise<RecordsPageOutput> {
+    const page = query?.page && query.page > 0 ? query.page : 1;
+    const perPage = query?.pageSize && query.pageSize > 0 ? query.pageSize : 20;
+    const [records, total] = await Promise.all([
+      this.readRepo.findAll(query),
+      this.readRepo.count(query),
+    ]);
+    const data = records.map(RecordOutput.fromModel);
+    return {
+      page: Number(page),
+      total,
+      data,
+      perPage: Number(perPage),
+    };
   }
 }
