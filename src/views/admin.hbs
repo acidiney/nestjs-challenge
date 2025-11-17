@@ -719,8 +719,25 @@
         total: 0,
         totalPages: 0,
         expanded: {},
-        cr: { artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' },
-        er: { id: '', artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' },
+        cr: {
+          artist: '',
+          album: '',
+          price: '',
+          qty: '',
+          format: 'Vinyl',
+          category: 'Rock',
+          mbid: ''
+        },
+        er: {
+          id: '',
+          artist: '',
+          album: '',
+          price: '',
+          qty: '',
+          format: 'Vinyl',
+          category: 'Rock',
+          mbid: ''
+        },
         order: { recordId: '', quantity: '' },
         orderRecordOpen: false,
         orderRecordSearch: '',
@@ -766,17 +783,35 @@
           if (this.page === 'records' || this.page === 'dashboard') { this.load(); }
           if (this.page === 'orders') { this.loadOrders(); }
         },
-        setPage(p) { this.page = p; if (typeof localStorage !== 'undefined') { localStorage.setItem('adminPage', p); } if (p === 'records' || p === 'dashboard') { this.load(); } if (p === 'orders') { this.ordersPage = 1; this.loadOrders(); } },
-        ordersNextPage() { if (this.ordersPage < this.ordersTotalPages) { this.ordersPage++; this.loadOrders(); } },
-        ordersPrevPage() { if (this.ordersPage > 1) { this.ordersPage--; this.loadOrders(); } },
+        setPage(p) {
+          this.page = p;
+          if (typeof localStorage !== 'undefined') { localStorage.setItem('adminPage', p); }
+          if (p === 'records' || p === 'dashboard') { this.load(); }
+          if (p === 'orders') { this.ordersPage = 1; this.loadOrders(); }
+        },
+        ordersNextPage() {
+          if (this.ordersPage < this.ordersTotalPages) {
+            this.ordersPage++;
+            this.loadOrders();
+          }
+        },
+        ordersPrevPage() {
+          if (this.ordersPage > 1) {
+            this.ordersPage--;
+            this.loadOrders();
+          }
+        },
         async loadOrders() {
           try {
             this.orderListLoading = true;
+
             const params = new URLSearchParams();
             params.set('page', String(this.ordersPage));
             params.set('pageSize', String(this.ordersPerPage));
+
             const r = await fetch('/orders?' + params.toString());
             const json = await r.json();
+
             this.orders = Array.isArray(json.data) ? json.data : [];
             this.ordersTotal = Number(json.total || 0);
             this.ordersPerPage = Number(json.perPage || this.ordersPerPage);
@@ -785,51 +820,139 @@
             this.orderListLoading = false;
           }
         },
-        openCreateModal() { this.resetCreate(); this.showCreateModal = true; },
-        resetCreate() { this.cr = { artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' }; this.createStatus = ''; },
-        nextPage() { if (this.currentPage < this.totalPages) { this.currentPage++; this.load(); } },
-        prevPage() { if (this.currentPage > 1) { this.currentPage--; this.load(); } },
+        openCreateModal() {
+          this.resetCreate();
+          this.showCreateModal = true;
+        },
+        resetCreate() {
+          this.cr = { artist: '', album: '', price: '', qty: '', format: 'Vinyl', category: 'Rock', mbid: '' };
+          this.createStatus = '';
+        },
+        nextPage() {
+          if (this.currentPage < this.totalPages) {
+            this.currentPage++;
+            this.load();
+          }
+        },
+        prevPage() {
+          if (this.currentPage > 1) {
+            this.currentPage--;
+            this.load();
+          }
+        },
         applyFilters() { this.load(); },
         toggleExpand(id) {
           const next = !this.expanded[id];
           this.expanded = Object.assign({}, this.expanded, { [id]: next });
         },
-        openTrackSlider(r) { this.selectedTrackRecord = r; this.showTrackSlider = true; },
-        openOrderRecordSelect() { this.orderRecordOpen = true; this.orderRecordOptions = []; this.orderRecordPage = 1; this.orderRecordTotalPages = 1; this.loadOrderRecords(); },
-        closeOrderRecordSelect() { this.orderRecordOpen = false; },
+        openTrackSlider(r) {
+          this.selectedTrackRecord = r;
+          this.showTrackSlider = true;
+        },
+        openOrderRecordSelect() {
+          this.orderRecordOpen = true;
+          this.orderRecordOptions = [];
+          this.orderRecordPage = 1;
+          this.orderRecordTotalPages = 1;
+          this.loadOrderRecords();
+        },
+        closeOrderRecordSelect() {
+          this.orderRecordOpen = false;
+        },
         async loadOrderRecords() {
           if (this.orderRecordLoading) return;
           if (this.orderRecordPage > this.orderRecordTotalPages) return;
+
           this.orderRecordLoading = true;
           const params = new URLSearchParams();
           params.set('page', String(this.orderRecordPage));
           params.set('pageSize', '20');
+
           const q = (this.orderRecordSearch || '').trim();
+
           if (q) params.set('q', q);
+
           const r = await fetch('/records?' + params.toString());
+
           const json = await r.json();
           const items = Array.isArray(json.data) ? json.data : [];
+
           this.orderRecordOptions = this.orderRecordOptions.concat(items);
+
           const total = Number(json.total || 0);
           const perPage = Number(json.perPage || 20);
+
           this.orderRecordTotalPages = Math.max(1, Math.ceil(total / perPage));
           this.orderRecordPage++;
           this.orderRecordLoading = false;
         },
-        onOrderRecordScroll(e) { const el = e.target; if (el.scrollTop + el.clientHeight >= el.scrollHeight - 32) { this.loadOrderRecords(); } },
-        selectOrderRecord(r) { this.order.recordId = r.id; this.orderRecordSelected = r; this.orderRecordOpen = false; },
-        onOrderRecordSearchInput() { if (this.orderRecordSearchTimer) { clearTimeout(this.orderRecordSearchTimer); } this.orderRecordSearchTimer = setTimeout(() => { this.orderRecordOptions = []; this.orderRecordPage = 1; this.orderRecordTotalPages = 1; this.loadOrderRecords(); }, 200); },
-        onOrderQuantityInput() { const max = this.orderRecordSelected ? Number(this.orderRecordSelected.qty || 0) : Infinity; const q = Number(this.order.quantity || 0); this.order.quantity = Math.max(1, Math.min(q, isFinite(max) ? max : q)); },
+        onOrderRecordScroll(e) {
+          const el = e.target;
+
+          if (el.scrollTop + el.clientHeight >= el.scrollHeight - 32) {
+            this.loadOrderRecords();
+          }
+        },
+        selectOrderRecord(r) {
+          this.order.recordId = r.id;
+          this.orderRecordSelected = r;
+          this.orderRecordOpen = false;
+        },
+        onOrderRecordSearchInput() {
+          if (this.orderRecordSearchTimer) {
+            clearTimeout(this.orderRecordSearchTimer);
+          }
+
+          this.orderRecordSearchTimer = setTimeout(() => {
+            this.orderRecordOptions = [];
+            this.orderRecordPage = 1;
+            this.orderRecordTotalPages = 1;
+            this.loadOrderRecords();
+          }, 200);
+        },
+        onOrderQuantityInput() {
+          const max = this.orderRecordSelected ? Number(this.orderRecordSelected.qty || 0) : Infinity;
+          const q = Number(this.order.quantity || 0);
+          this.order.quantity = Math.max(1, Math.min(q, isFinite(max) ? max : q));
+        },
         selectRecord(r) {
           const id = r.id;
-          this.er = { id, artist: r.artist || '', album: r.album || '', price: r.price || '', qty: r.qty || '', format: r.format || 'Vinyl', category: r.category || 'Rock', mbid: r.mbid || '' };
+          this.er = {
+            id,
+            artist: r.artist || '',
+            album: r.album || '',
+            price: r.price || '',
+            qty: r.qty || '',
+            format: r.format || 'Vinyl',
+            category: r.category || 'Rock',
+            mbid: r.mbid || ''
+          };
           this.showEditModal = true;
         },
         async createRecord() {
           try {
             this.createStatus = 'Creating...';
-            const res = await fetch('/records', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artist: this.cr.artist, album: this.cr.album, price: Number(this.cr.price), qty: Number(this.cr.qty), format: this.cr.format, category: this.cr.category, mbid: this.cr.mbid || undefined }) });
-            if (!res.ok) { throw new Error('Failed to create record'); }
+            const res = await fetch('/records',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(
+                  {
+                    artist: this.cr.artist,
+                    album: this.cr.album,
+                    price: Number(this.cr.price),
+                    qty: Number(this.cr.qty),
+                    format: this.cr.format,
+                    category: this.cr.category,
+                    mbid: this.cr.mbid || undefined
+                  })
+              });
+
+            if (!res.ok) {
+              const data = await res.json().catch(() => null);
+              throw new Error(data?.message || 'Failed to create record');
+            }
+
             this.createStatus = 'Created';
             await this.load();
             this.showCreateModal = false;
@@ -841,7 +964,12 @@
             const id = this.er.id;
             const payload = { artist: this.er.artist || undefined, album: this.er.album || undefined, price: Number(this.er.price), qty: Number(this.er.qty), format: this.er.format || undefined, category: this.er.category || undefined, mbid: this.er.mbid || undefined };
             const res = await fetch('/records/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            if (!res.ok) { throw new Error('Failed to update record'); }
+
+            if (!res.ok) {
+              const data = await res.json().catch(() => null);
+              throw new Error(data?.message || 'Failed to update record');
+            }
+
             this.updateStatus = 'Updated';
             await this.load();
             this.showEditModal = false;
@@ -851,7 +979,14 @@
           try {
             this.orderStatus = 'Creating...';
             const res = await fetch('/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recordId: this.order.recordId, quantity: Number(this.order.quantity) }) });
-            if (!res.ok) { throw new Error('Failed to create order'); }
+
+
+            if (!res.ok) {
+              const data = await res.json().catch(() => null);
+              throw new Error(data?.message || 'Failed to create order');
+            }
+
+
             this.orderStatus = 'Order created';
             const placedQty = Number(this.order.quantity) || 0;
             if (this.orderRecordSelected) {
@@ -868,22 +1003,60 @@
           } catch (e) { this.orderStatus = e.message; }
         },
         lookupMbidTimer: null,
-        debouncedLookup(target) { if (this.lookupMbidTimer) { clearTimeout(this.lookupMbidTimer); } this.lookupMbidTimer = setTimeout(() => this.lookupMbid(target), 500); },
+        debouncedLookup(target) {
+          if (this.lookupMbidTimer) { clearTimeout(this.lookupMbidTimer); }
+
+          this.lookupMbidTimer = setTimeout(() => this.lookupMbid(target), 500);
+        },
         async lookupMbid(target) {
+
           const isCreate = target === 'create';
+
           const artist = (isCreate ? this.cr.artist : this.er.artist || '').trim();
+
           const album = (isCreate ? this.cr.album : this.er.album || '').trim();
+
           if (!artist || !album) return;
+
           try {
-            if (isCreate) { this.mbidLookupLoadingCreate = true; this.createStatus = 'Searching MBID...'; }
-            else { this.mbidLookupLoadingEdit = true; this.updateStatus = 'Searching MBID...'; }
+
+            if (isCreate) {
+              this.mbidLookupLoadingCreate = true;
+              this.createStatus = 'Searching MBID...';
+            } else {
+              this.mbidLookupLoadingEdit = true;
+              this.updateStatus = 'Searching MBID...';
+            }
+
             const res = await fetch('/records/mbid/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artist, album }) });
+
             const json = await res.json();
-            const found = json?.mbid || '';
-            if (isCreate) { this.cr.mbid = found; this.createStatus = found ? '' : 'MBID not found'; }
-            else { this.er.mbid = found; this.updateStatus = found ? '' : 'MBID not found'; }
-          } catch (e) { if (isCreate) { this.createStatus = 'MBID search failed'; } else { this.updateStatus = 'MBID search failed'; } }
-          finally { if (isCreate) { this.mbidLookupLoadingCreate = false; } else { this.mbidLookupLoadingEdit = false; } }
+
+            const found = json?.mbid;
+
+            if (isCreate) {
+              this.cr.mbid = found;
+              this.createStatus = found ? '' : 'MBID not found';
+              return
+            }
+
+            this.er.mbid = found;
+            this.updateStatus = found ? '' : 'MBID not found';
+
+          } catch (e) {
+            if (isCreate) {
+              this.createStatus = 'MBID search failed';
+              return
+            }
+            this.updateStatus = 'MBID search failed';
+          }
+          finally {
+            if (isCreate) {
+              this.mbidLookupLoadingCreate = false;
+              return
+            }
+            this.mbidLookupLoadingEdit = false;
+          }
         }
       }
     }
