@@ -8,7 +8,7 @@ export interface MbidCacheRepository {
     ttlDays: number,
   ): Promise<void>;
   findReleaseMbid(artist: string, album: string): Promise<string | null>;
-  upsertReleaseMbid(
+  updateReleaseMbid(
     artist: string,
     album: string,
     mbid: string,

@@ -7,7 +7,7 @@ describe('MusicBrainzService', () => {
     findTracklist: jest.fn().mockResolvedValue(null),
     upsertTracklist: jest.fn().mockResolvedValue(undefined),
     findReleaseMbid: jest.fn().mockResolvedValue(null),
-    upsertReleaseMbid: jest.fn().mockResolvedValue(undefined),
+    updateReleaseMbid: jest.fn().mockResolvedValue(undefined),
   };
   const service = new MusicBrainzService(cacheRepo);
 

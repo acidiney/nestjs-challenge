@@ -54,7 +54,7 @@ export class MongoMbidCacheRepository implements MbidCacheRepository {
     return doc.mbid;
   }
 
-  async upsertReleaseMbid(
+  async updateReleaseMbid(
     artist: string,
     album: string,
     mbid: string,
@@ -67,7 +67,7 @@ export class MongoMbidCacheRepository implements MbidCacheRepository {
       .updateOne(
         { mbid },
         { $set: { artist, album, mbid, fetchedAt, expiresAt } },
-        { upsert: true },
+        { upsert: false },
       )
       .exec();
   }

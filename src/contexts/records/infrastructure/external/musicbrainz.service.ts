@@ -102,7 +102,7 @@ export class MusicBrainzService implements MusicMetadataService {
           if (!MBID.isValid(id)) return null;
 
           // Cache the mbid for 7 days
-          await this.cacheRepo.upsertReleaseMbid(qArtist, qAlbum, id, 7);
+          await this.cacheRepo.updateReleaseMbid(qArtist, qAlbum, id, 7);
 
           return MBID.from(id);
         } catch (err) {

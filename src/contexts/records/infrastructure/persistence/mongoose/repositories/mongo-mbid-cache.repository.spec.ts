@@ -127,13 +127,12 @@ describe('MongoMbidCacheRepository', () => {
     const model = makeModel();
     const repo = new MongoMbidCacheRepository(model as any);
 
-    await repo.upsertReleaseMbid('Artist', 'Album', 'mbid-1', 3);
+    await repo.updateReleaseMbid('Artist', 'Album', 'mbid-1', 3);
 
     expect(model.updateOne).toHaveBeenCalled();
     const call = (model.updateOne as jest.Mock).mock.calls[0];
     const filter = call[0];
     const update = call[1];
-    const options = call[2];
 
     expect(filter).toEqual({ mbid: 'mbid-1' });
     expect(update.$set.artist).toBe('Artist');
@@ -141,7 +140,6 @@ describe('MongoMbidCacheRepository', () => {
     expect(update.$set.mbid).toBe('mbid-1');
     expect(update.$set.fetchedAt).toBeInstanceOf(Date);
     expect(update.$set.expiresAt).toBeInstanceOf(Date);
-    expect(options).toMatchObject({ upsert: true });
 
     const diff =
       update.$set.expiresAt.getTime() - update.$set.fetchedAt.getTime();
