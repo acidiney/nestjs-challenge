@@ -47,6 +47,14 @@
       max-width: 320px
     }
 
+    @media (max-width: 767px) {
+
+      .filters input,
+      .filters select {
+        max-width: 100%
+      }
+    }
+
     button {
       padding: 8px 12px;
       margin-top: 8px
@@ -164,7 +172,7 @@
       </div>
       <div class="row">
         <div>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div class="filters grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <label class="block text-sm font-medium">Search<input
                 class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-gray-100 placeholder-gray-400"
                 type="text" x-model="search" @keyup.enter="currentPage=1; load()" @blur="currentPage=1; load()"
@@ -574,8 +582,8 @@
                   </svg>
                 </span>
               </template>
-              <template x-if="!mbidLookupLoadingEdit && !er.mbid && updateStatus==='MBID not found'">
-                <span class="text-red-400 text-xs">MBID not found</span>
+              <template x-if="!mbidLookupLoadingEdit && !er.mbid && mbidLookupStatus">
+                <span class="text-red-400 text-xs" x-text="mbidLookupStatus"></span>
               </template>
             </div>
           </label>
@@ -583,8 +591,28 @@
         <div class="flex items-center justify-end gap-3 mt-6">
           <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded"
             @click="showEditModal=false">Cancel</button>
-          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            :disabled="!er.id" @click="updateRecord">Update</button>
+          <button
+            class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:bg-blue-400"
+            :disabled="!er.id || isLoading" @click="updateRecord">
+            <template x-if="isLoading">
+              <span class="flex items-center">
+                <svg class="mr-3 -ml-1 size-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                <span class="text-white">Updating...</span>
+              </span>
+            </template>
+            <template x-if="!isLoading">
+              <span class="text-white">Update</span>
+            </template>
+          </button>
+
+        </div>
+        <div class="mt-2 text-sm" :class="updateStatus ? 'text-red-400' : 'text-gray-400'" x-text="updateStatus || ''">
         </div>
       </div>
     </div>
@@ -650,8 +678,8 @@
                   </svg>
                 </span>
               </template>
-              <template x-if="!mbidLookupLoadingCreate && !cr.mbid && createStatus==='MBID not found'">
-                <span class="text-red-400 text-xs">MBID not found</span>
+              <template x-if="!mbidLookupLoadingCreate && !cr.mbid && mbidLookupStatus">
+                <span class="text-red-400 text-xs" x-text="mbidLookupStatus"></span>
               </template>
             </div>
           </label>
@@ -659,9 +687,31 @@
         <div class="flex items-center justify-end gap-3 mt-6">
           <button class="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-100 px-4 py-2 rounded"
             @click="showCreateModal=false">Cancel</button>
-          <button class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            @click="createRecord">Create</button>
+          <button
+            class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:bg-blue-400"
+            :disabled="isLoading" @click="createRecord">
+            <template x-if="isLoading">
+              <span class="flex items-center">
+                <svg class="mr-3 -ml-1 size-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                <span class="text-white">Creating...</span>
+              </span>
+            </template>
+            <template x-if="!isLoading">
+              <span class="text-white">Create</span>
+            </template>
+          </button>
+
+
         </div>
+        <div class="mt-2 text-sm" :class="createStatus ? 'text-red-400' : 'text-gray-400'" x-text="createStatus || ''">
+        </div>
+
       </div>
     </div>
     <div x-cloak x-show="showTrackSlider" @keydown.escape.window="showTrackSlider=false" class="fixed inset-0 z-50">
@@ -755,6 +805,8 @@
         mbidLookupLoadingCreate: false,
         mbidLookupLoadingEdit: false,
         orderListLoading: false,
+        mbidLookupStatus: '',
+        isLoading: false,
         async load() {
           try {
             this.loading = true;
@@ -931,7 +983,7 @@
         },
         async createRecord() {
           try {
-            this.createStatus = 'Creating...';
+            this.isLoading = true;
             const res = await fetch('/records',
               {
                 method: 'POST',
@@ -953,32 +1005,42 @@
               throw new Error(data?.message || 'Failed to create record');
             }
 
-            this.createStatus = 'Created';
             await this.load();
             this.showCreateModal = false;
           } catch (e) { this.createStatus = e.message; }
+          finally { this.isLoading = false; }
         },
         async updateRecord() {
           try {
-            this.updateStatus = 'Updating...';
+            this.isLoading = true;
             const id = this.er.id;
             const payload = { artist: this.er.artist || undefined, album: this.er.album || undefined, price: Number(this.er.price), qty: Number(this.er.qty), format: this.er.format || undefined, category: this.er.category || undefined, mbid: this.er.mbid || undefined };
-            const res = await fetch('/records/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const res = await fetch('/records/' + id, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
 
             if (!res.ok) {
               const data = await res.json().catch(() => null);
               throw new Error(data?.message || 'Failed to update record');
             }
 
-            this.updateStatus = 'Updated';
             await this.load();
             this.showEditModal = false;
           } catch (e) { this.updateStatus = e.message; }
+          finally { this.isLoading = false; }
         },
         async createOrder() {
           try {
-            this.orderStatus = 'Creating...';
-            const res = await fetch('/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recordId: this.order.recordId, quantity: Number(this.order.quantity) }) });
+            this.isLoading = true;
+            const res = await fetch('/orders', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                recordId: this.order.recordId, quantity: Number(this.order.quantity)
+              })
+            });
 
 
             if (!res.ok) {
@@ -1001,6 +1063,7 @@
             this.order.quantity = '';
             await this.loadOrders();
           } catch (e) { this.orderStatus = e.message; }
+          finally { this.isLoading = false; }
         },
         lookupMbidTimer: null,
         debouncedLookup(target) {
@@ -1022,10 +1085,8 @@
 
             if (isCreate) {
               this.mbidLookupLoadingCreate = true;
-              this.createStatus = 'Searching MBID...';
             } else {
               this.mbidLookupLoadingEdit = true;
-              this.updateStatus = 'Searching MBID...';
             }
 
             const res = await fetch('/records/mbid/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artist, album }) });
@@ -1034,21 +1095,17 @@
 
             const found = json?.mbid;
 
+            this.mbidLookupStatus = found ? '' : 'MBID not found';
+
             if (isCreate) {
               this.cr.mbid = found;
-              this.createStatus = found ? '' : 'MBID not found';
               return
             }
 
             this.er.mbid = found;
-            this.updateStatus = found ? '' : 'MBID not found';
 
           } catch (e) {
-            if (isCreate) {
-              this.createStatus = 'MBID search failed';
-              return
-            }
-            this.updateStatus = 'MBID search failed';
+            this.mbidLookupStatus = 'MBID search failed';
           }
           finally {
             if (isCreate) {
