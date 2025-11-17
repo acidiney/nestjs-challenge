@@ -22,6 +22,7 @@ export class CreateRecordRequestDTO {
   })
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   artist: string;
 
   @ApiProperty({
@@ -31,6 +32,7 @@ export class CreateRecordRequestDTO {
   })
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   album: string;
 
   @ApiProperty({

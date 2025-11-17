@@ -22,6 +22,7 @@ export class UpdateRecordRequestDTO {
   })
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value.trim())
   artist?: string;
 
   @ApiProperty({
@@ -32,6 +33,7 @@ export class UpdateRecordRequestDTO {
   })
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value.trim())
   album?: string;
 
   @ApiProperty({
