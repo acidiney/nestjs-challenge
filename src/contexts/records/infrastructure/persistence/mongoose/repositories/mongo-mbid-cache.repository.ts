@@ -4,6 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MBIDCache } from '../schemas/mbid-cache.schema';
 
+const PER_DAY_MS = 24 * 60 * 60 * 1000;
+
 export class MongoMbidCacheRepository implements MbidCacheRepository {
   constructor(
     @InjectModel('MBIDCache') private readonly model: Model<MBIDCache>,
@@ -29,13 +31,42 @@ export class MongoMbidCacheRepository implements MbidCacheRepository {
   ): Promise<void> {
     const fetchedAt = new Date();
 
-    const PER_DAY_MS = 24 * 60 * 60 * 1000;
+    const expiresAt = new Date(fetchedAt.getTime() + ttlDays * PER_DAY_MS);
+    await this.model
+      .updateOne(
+        { mbid },
+        { $set: { tracklist, mbid, fetchedAt, expiresAt } },
+        { upsert: true },
+      )
+      .exec();
+  }
+
+  async findReleaseMbid(artist: string, album: string): Promise<string | null> {
+    const now = new Date();
+
+    const doc = await this.model
+      .findOne({ artist, album, expiresAt: { $gt: now } })
+      .lean()
+      .exec();
+
+    if (!doc) return null;
+
+    return doc.mbid;
+  }
+
+  async upsertReleaseMbid(
+    artist: string,
+    album: string,
+    mbid: string,
+    ttlDays: number,
+  ): Promise<void> {
+    const fetchedAt = new Date();
 
     const expiresAt = new Date(fetchedAt.getTime() + ttlDays * PER_DAY_MS);
     await this.model
       .updateOne(
         { mbid },
-        { mbid, tracklist, fetchedAt, expiresAt },
+        { $set: { artist, album, mbid, fetchedAt, expiresAt } },
         { upsert: true },
       )
       .exec();

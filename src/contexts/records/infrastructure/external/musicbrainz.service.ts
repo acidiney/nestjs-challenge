@@ -67,6 +67,11 @@ export class MusicBrainzService implements MusicMetadataService {
 
         if (!qArtist || !qAlbum) return null;
 
+        // check cache
+        const cached = await this.cacheRepo.findReleaseMbid(qArtist, qAlbum);
+
+        if (cached) return MBID.from(cached);
+
         const params = new URLSearchParams({
           query: `artist:"${qArtist}" AND release:"${qAlbum}"`,
           fmt: this.DEFAULT_FMT,
@@ -95,6 +100,9 @@ export class MusicBrainzService implements MusicMetadataService {
           const id = (bestScore?.id || '').trim();
 
           if (!MBID.isValid(id)) return null;
+
+          // Cache the mbid for 7 days
+          await this.cacheRepo.upsertReleaseMbid(qArtist, qAlbum, id, 7);
 
           return MBID.from(id);
         } catch (err) {
