@@ -75,11 +75,10 @@ This layered, domain-centric approach directly addresses key system performance 
 
 ## Migration Plan (High-Level)
 
-1.  Establish `src/shared/kernel` primitives.
-2.  **Extract `Records` Context Incrementally**: Focus on moving logic into the new layers; **prioritize defining Repository Interfaces in the Domain** and implementing Mongoose adapters in Infrastructure first.
-3.  **Implement `Orders` Context Fully**: Develop domain model, use cases, repository, and the `RecordsAvailabilityPort` + in-process adapter using the full three-layer model.
-4.  Update `app.module.ts` to compose the application using the new infrastructure modules.
-5.  Add unit and integration tests across layers and contexts.
+1.  **Extract `Records` Context Incrementally**: Focus on moving logic into the new layers; **prioritize defining Repository Interfaces in the Domain** and implementing Mongoose adapters in Infrastructure first.
+2.  **Implement `Orders` Context Fully**: Develop domain model, use cases, repository.
+3.  Update `app.module.ts` to compose the application using the new infrastructure modules.
+4.  Add unit and integration tests across layers and contexts.
 
 ---
 
