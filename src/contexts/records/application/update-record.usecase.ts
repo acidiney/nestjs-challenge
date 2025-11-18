@@ -59,6 +59,11 @@ export class UpdateRecordUseCase {
 
         await this.repo.updateById(id, updatedDto);
         this.events.emit('cache.invalidate', '/records');
+
+        this.events.emit('records.coverart.fetch', {
+          id: record.id,
+          mbid: dto.mbid?.toString(),
+        });
         return RecordOutput.fromModel(
           await this.recordReadRepository.findById(id),
         );

@@ -23,7 +23,7 @@ export class RecordCoverArtListener {
     private readonly metadata: MusicMetadataService,
   ) {}
 
-  @OnEvent('records.coverart.fetch', { async: true })
+  @OnEvent('records.coverart.fetch', { async: true, nextTick: true })
   async onFetchCoverArt(payload: CoverArtEventPayload): Promise<void> {
     return Sentry.startSpan(
       { name: 'RecordCoverArtListener#onFetchCoverArt', op: 'listener' },

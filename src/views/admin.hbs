@@ -717,7 +717,7 @@
           <template
             x-if="selectedTrackRecord && Array.isArray(selectedTrackRecord.tracklist) && selectedTrackRecord.tracklist.length">
             <div>
-              <template x-for="t in selectedTrackRecord.tracklist" :key="t.title || t">
+              <template x-for="t in selectedTrackRecord.tracklist" :key="t.slug || t.title">
                 <div class="flex justify-between border-b border-gray-700 last:border-b-0 py-1">
                   <span x-text="typeof t === 'string' ? t : (t.title || '')"></span>
                   <span x-text="typeof t === 'string' ? '' : (t.length || '')"></span>
