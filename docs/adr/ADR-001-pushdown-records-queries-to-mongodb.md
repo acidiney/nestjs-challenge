@@ -103,7 +103,6 @@ async findAll(
 Notes:
 
 - Use `RegExp` for partial matches where text search is not applicable; prefer text search when `q` is provided.
-- Replace `qty`/`availableStock` fields accordingly to match the actual schema.
 
 ### Read-Side Repository (Follow-up)
 
