@@ -152,6 +152,7 @@
         @click.prevent="setPage('orders')">Orders</a>
     </nav>
 
+
     <section x-show="page==='dashboard'" class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
       <h2>Dashboard</h2>
       <div class="row">
@@ -1119,11 +1120,11 @@
     }
   </script>
 
-  <script src="https://js-de.sentry-cdn.com/58a69b7a809e3ca90800406311051fcb.min.js" crossorigin="anonymous"></script>
+  <script src="https://js-de.sentry-cdn.com/{{SENTRY_FE_HASH_SCRIPT}}.min.js" crossorigin="anonymous"></script>
   <script>
     window.sentryOnLoad = function () {
       Sentry.init({
-        dsn: "https://58a69b7a809e3ca90800406311051fcb@o4510375818887168.ingest.de.sentry.io/4510375821508688",
+        dsn: {{ SENTRY_DNS }},
         sendDefaultPii: true,
         integrations: [
           Sentry.browserTracingIntegration(),
@@ -1134,7 +1135,11 @@
         ],
         enableLogs: true,
         tracesSampleRate: 1.0,
-        tracePropagationTargets: ["localhost", "https://brokenrecordstore.onrender.com/api"],
+        tracePropagationTargets: [
+         {{#each SENTRY_ALLOWED_DOMAINS}}
+          {{this}},
+        {{/each}}
+        ],
         replaysSessionSampleRate: 0.1,
         replaysOnErrorSampleRate: 1.0,
       });
