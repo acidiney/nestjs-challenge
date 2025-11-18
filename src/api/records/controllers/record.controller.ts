@@ -11,7 +11,15 @@ import {
   Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 
 import { CreateRecordRequestDTO } from '../dtos/create-record.request.dto';
 import { UpdateRecordRequestDTO } from '../dtos/update-record.request.dto';
@@ -20,8 +28,6 @@ import { CreateRecordUseCase } from '@/contexts/records/application/create-recor
 import { CreateRecordInput } from '@/contexts/records/application/inputs/create-record.input';
 import { UpdateRecordInput } from '@/contexts/records/application/inputs/update-record.input';
 import { ListRecordsUseCase } from '@/contexts/records/application/list-records.usecase';
-import { RecordOutput } from '@/contexts/records/application/outputs/record.output';
-import { RecordsPageOutput } from '@/contexts/records/application/outputs/records-page.output';
 import {
   MUSIC_METADATA_SERVICE,
   MusicMetadataService,
@@ -34,6 +40,9 @@ import { RecordSortParam } from '@/contexts/records/domain/queries/sort.types';
 import { CustomCacheInterceptor } from '@/infrastructure/cache/custom-cache.interceptor';
 import * as Sentry from '@sentry/nestjs';
 import { LookupMbidRequestDTO } from '../dtos/lookup-mbid.request.dto';
+import { RecordPresenter } from '../presenters/record.presenter';
+import { RecordsPaginatedPresenter } from '../presenters/records-paginated.presenter';
+import { SearchMbidPresenter } from '../presenters/search-mbid.presenter';
 
 @Controller('records')
 export class RecordController {
@@ -47,10 +56,15 @@ export class RecordController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new record' })
-  @ApiResponse({ status: 201, description: 'Record successfully created' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 409, description: 'Record already exists' })
-  async create(@Body() request: CreateRecordRequestDTO): Promise<RecordOutput> {
+  @ApiCreatedResponse({
+    description: 'Record successfully created',
+    type: RecordPresenter,
+  })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiConflictResponse({ description: 'Record already exists' })
+  async create(
+    @Body() request: CreateRecordRequestDTO,
+  ): Promise<RecordPresenter> {
     return Sentry.startSpan(
       { name: 'RecordController#create', op: 'controller' },
       async () => {
@@ -63,19 +77,27 @@ export class RecordController {
           category: request.category,
           mbid: request.mbid,
         };
-        return this.createRecord.execute(input);
+        const record = await this.createRecord.execute(input);
+        return RecordPresenter.fromOutput(record);
       },
     );
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update an existing record' })
-  @ApiResponse({ status: 200, description: 'Record updated successfully' })
-  @ApiResponse({ status: 500, description: 'Cannot find record to update' })
+  @ApiOperation({
+    summary: 'Update an existing record',
+    description: 'Update record details by ID',
+  })
+  @ApiOkResponse({
+    description: 'Record updated successfully',
+    type: RecordPresenter,
+  })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Record not found' })
   async update(
     @Param('id') id: string,
     @Body() updateRecordDto: UpdateRecordRequestDTO,
-  ): Promise<RecordOutput> {
+  ): Promise<RecordPresenter> {
     return Sentry.startSpan(
       { name: 'RecordController#update', op: 'controller' },
       async () => {
@@ -88,16 +110,17 @@ export class RecordController {
           category: updateRecordDto.category,
           mbid: updateRecordDto.mbid,
         };
-        return this.updateRecord.execute(id, input);
+        const record = await this.updateRecord.execute(id, input);
+        return RecordPresenter.fromOutput(record);
       },
     );
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all records with optional filters' })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'List of records',
+    type: () => RecordsPaginatedPresenter,
   })
   @ApiQuery({
     name: 'q',
@@ -161,7 +184,7 @@ export class RecordController {
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 20,
     @Query('sort') sort: RecordSortParam = 'relevance',
-  ): Promise<RecordsPageOutput> {
+  ): Promise<RecordsPaginatedPresenter> {
     return Sentry.startSpan(
       { name: 'RecordController#findAll', op: 'controller' },
       async () => {
@@ -179,7 +202,8 @@ export class RecordController {
           pageSize,
         };
 
-        return this.listRecords.execute(request);
+        const records = await this.listRecords.execute(request);
+        return RecordsPaginatedPresenter.fromOutput(records);
       },
     );
   }
@@ -187,18 +211,21 @@ export class RecordController {
   @Post('mbid/search')
   @HttpCode(200)
   @ApiOperation({ summary: 'Lookup MBID by artist and album' })
-  @ApiResponse({ status: 200, description: 'MBID found or not' })
+  @ApiOkResponse({
+    description: 'MBID found or not',
+    type: SearchMbidPresenter,
+  })
   async searchMbid(
     @Body() body: LookupMbidRequestDTO,
-  ): Promise<{ mbid: string | null }> {
+  ): Promise<SearchMbidPresenter> {
     return Sentry.startSpan(
       { name: 'RecordController#searchMbid', op: 'controller' },
       async () => {
-        const mbid = await this.metadata.searchReleaseMbid(
+        const foundMBID = await this.metadata.searchReleaseMbid(
           body.artist,
           body.album,
         );
-        return { mbid: mbid ? mbid.toString() : null };
+        return SearchMbidPresenter.fromOutput(foundMBID);
       },
     );
   }

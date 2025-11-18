@@ -1,5 +1,6 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Test, TestingModule } from '@nestjs/testing';
+import { RecordPresenter } from './../presenters/record.presenter';
 
 import { CreateRecordUseCase } from '@/contexts/records/application/create-record.usecase';
 import { ListRecordsUseCase } from '@/contexts/records/application/list-records.usecase';
@@ -8,6 +9,7 @@ import { UpdateRecordUseCase } from '@/contexts/records/application/update-recor
 import { RecordCategory } from '@/contexts/records/domain/enums/record-category.enum';
 import { RecordFormat } from '@/contexts/records/domain/enums/record-format.enum';
 import { CreateRecordRequestDTO } from '../dtos/create-record.request.dto';
+import { RecordsPaginatedPresenter } from '../presenters/records-paginated.presenter';
 import { RecordController } from './record.controller';
 
 describe('RecordController', () => {
@@ -51,12 +53,15 @@ describe('RecordController', () => {
       category: RecordCategory.ALTERNATIVE,
     };
 
-    const savedRecord = {
-      _id: '1',
-      name: 'Test Record',
+    const savedRecord = RecordPresenter.fromOutput({
+      id: '1',
+      artist: 'Test',
+      album: 'Test Record',
       price: 100,
       qty: 10,
-    } as any;
+      format: RecordFormat.VINYL,
+      category: RecordCategory.ALTERNATIVE,
+    });
     createRecord.execute.mockResolvedValue(savedRecord);
 
     const result = await recordController.create(createRecordDto);
@@ -84,7 +89,7 @@ describe('RecordController', () => {
     listRecords.execute.mockResolvedValue(payload);
 
     const result = await recordController.findAll();
-    expect(result).toEqual(payload);
+    expect(result).toEqual(RecordsPaginatedPresenter.fromOutput(payload));
     expect(listRecords.execute).toHaveBeenCalledWith(
       expect.objectContaining({ page: 1, pageSize: 20, sort: 'relevance' }),
     );
