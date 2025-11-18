@@ -1124,7 +1124,7 @@
   <script>
     window.sentryOnLoad = function () {
       Sentry.init({
-        dsn: {{ SENTRY_DNS }},
+        dsn: {{ SENTRY_DSN }},
         sendDefaultPii: true,
         integrations: [
           Sentry.browserTracingIntegration(),

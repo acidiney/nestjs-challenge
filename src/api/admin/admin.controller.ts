@@ -14,7 +14,7 @@ export class AdminController {
         const allowedDomains =
           process.env.SENTRY_ALLOWED_DOMAINS?.split(',') || [];
         return {
-          SENTRY_DNS: process.env.SENTRY_DNS,
+          SENTRY_DSN: process.env.SENTRY_DSN,
           SENTRY_ALLOWED_DOMAINS: allowedDomains,
           SENTRY_FE_HASH_SCRIPT: process.env.SENTRY_FE_HASH_SCRIPT,
         };
